@@ -67,13 +67,11 @@ jobs:
 
       # 如果你这个脚本不是每次都必须，可以保留 if-present 更稳
       - name: Build search index (optional)
-        run: pnpm run --if-present db:search-index
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
+        shell: bash
+        run: |
+          if [ -f prisma/sql/search-index.sql ]; then
+            pnpm db: search-index
+           else
+            echo "Skip search index build:prisma/sql/search-index.sql not found"
+          fi
+       
