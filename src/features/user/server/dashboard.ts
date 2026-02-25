@@ -3,6 +3,11 @@ import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 
+export const DASHBOARD_OVERVIEW_TAG = "dashboard-user-overview";
+export const DASHBOARD_RECENT_TAG = "dashboard-user-recent";
+export const DASHBOARD_FAVORITES_TAG = "dashboard-user-favorites";
+export const DASHBOARD_LIKES_TAG = "dashboard-user-likes";
+
 type RecentInteraction = {
   id: string;
   type: "comment" | "favorite" | "like" | "view";
@@ -115,7 +120,8 @@ async function getRecentInteractionsUncached(userId: string, limit = 12): Promis
 }
 
 const getRecentInteractionsCached = unstable_cache(getRecentInteractionsUncached, ["dashboard-user-recent"], {
-  revalidate: DASHBOARD_CACHE_REVALIDATE
+  revalidate: DASHBOARD_CACHE_REVALIDATE,
+  tags: [DASHBOARD_RECENT_TAG]
 });
 
 export async function getRecentInteractions(userId: string, limit = 12): Promise<RecentInteraction[]> {
@@ -153,7 +159,8 @@ async function getUserOverviewUncached(userId: string) {
 }
 
 const getUserOverviewCached = unstable_cache(getUserOverviewUncached, ["dashboard-user-overview"], {
-  revalidate: DASHBOARD_CACHE_REVALIDATE
+  revalidate: DASHBOARD_CACHE_REVALIDATE,
+  tags: [DASHBOARD_OVERVIEW_TAG, DASHBOARD_RECENT_TAG]
 });
 
 export async function getUserOverview(userId: string) {
@@ -193,7 +200,8 @@ async function getUserFavoritesUncached(userId: string) {
 }
 
 const getUserFavoritesCached = unstable_cache(getUserFavoritesUncached, ["dashboard-user-favorites"], {
-  revalidate: DASHBOARD_CACHE_REVALIDATE
+  revalidate: DASHBOARD_CACHE_REVALIDATE,
+  tags: [DASHBOARD_FAVORITES_TAG]
 });
 
 export async function getUserFavorites(userId: string) {
@@ -233,7 +241,8 @@ async function getUserLikesUncached(userId: string) {
 }
 
 const getUserLikesCached = unstable_cache(getUserLikesUncached, ["dashboard-user-likes"], {
-  revalidate: DASHBOARD_CACHE_REVALIDATE
+  revalidate: DASHBOARD_CACHE_REVALIDATE,
+  tags: [DASHBOARD_LIKES_TAG]
 });
 
 export async function getUserLikes(userId: string) {

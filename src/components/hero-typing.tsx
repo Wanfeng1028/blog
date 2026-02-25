@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils/cn";
 
-const LINE_ONE = "Wanfeng's home";
+const LINE_ONE = "Wanfeng's home!";
 const LINE_TWO = "Life is coding, I will debug it.";
 const SOUND_KEY = "hero_typing_sound_enabled";
 

@@ -251,8 +251,12 @@ export function AdminSettingsPanel({
           onFinish={saveSiteSettings}
           className="grid grid-cols-1 gap-4 lg:grid-cols-2"
         >
-          <Form.Item name="bgmSrc" label="背景音乐地址" rules={[{ required: true, message: "请输入 BGM 文件路径" }]}>
-            <Input placeholder="/audio/home.mp3" />
+          <Form.Item
+            name="bgmSrc"
+            label="背景音乐路径（当前值）"
+            tooltip="通过上方「BGM 音乐管理」面板一键切换时自动同步；也可在此手动输入外部音频 URL 后保存。"
+          >
+            <Input placeholder="/audio/home.mp3 或 https://cdn.example.com/xxx.mp3" />
           </Form.Item>
           <Form.Item name="bgmEnabled" label="默认开启 BGM">
             <Select

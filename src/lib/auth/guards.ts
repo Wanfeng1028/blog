@@ -20,9 +20,8 @@ export async function requireAdmin() {
 }
 
 export async function requireUser() {
+  // Any authenticated user (USER or ADMIN) can access user-facing pages.
+  // Only check that a valid session exists.
   const session = await getSessionOrThrow();
-  if (session.user.role !== "USER") {
-    throw new Error("FORBIDDEN");
-  }
   return session;
 }

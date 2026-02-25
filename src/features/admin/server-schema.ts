@@ -43,5 +43,6 @@ export const projectInputSchema = z.object({
   githubUrl: z.union([z.string().url(), z.literal("")]).optional(),
   demoUrl: z.union([z.string().url(), z.literal("")]).optional(),
   sourceRepo: z.string().max(200).optional().or(z.literal("")),
-  slug: z.string().optional()
+  slug: z.string().optional(),
+  content: z.string().optional()
 });

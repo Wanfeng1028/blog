@@ -45,7 +45,7 @@ export default async function HomePage() {
         className="ml-[calc(50%-50vw)] w-screen border-y border-white/45 bg-[linear-gradient(180deg,rgba(191,219,254,0.62)_0%,rgba(239,246,255,0.66)_30%,rgba(248,250,252,0.7)_58%,rgba(191,219,254,0.62)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_20px_45px_rgba(30,64,175,0.14)] backdrop-blur-[1px]"
         id="home-content"
       >
-        <div className="mx-auto grid max-w-[76rem] gap-8 px-4 py-16 lg:grid-cols-[18.5rem_minmax(0,1fr)]">
+        <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-16 lg:grid-cols-[260px_minmax(0,1fr)]">
           <HomeLeftSidebar postCount={postCount} categoryCount={categoryCount} tagCount={tags.length} />
 
           <div>

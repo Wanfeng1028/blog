@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
+import { Eye, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { PostPreview } from "@/features/blog/server/types";
@@ -27,6 +28,16 @@ export function PostCard({ post }: { post: PostPreview }) {
           {post.tags.map((tag) => (
             <Badge key={tag}>{tag}</Badge>
           ))}
+        </div>
+        <div className="mt-3 flex items-center gap-3 text-xs text-muted">
+          <span className="flex items-center gap-1">
+            <Eye className="size-3.5" />
+            {post.viewsCount ?? 0}
+          </span>
+          <span className="flex items-center gap-1">
+            <Heart className="size-3.5" />
+            {post.likesCount ?? 0}
+          </span>
         </div>
       </CardContent>
     </Card>

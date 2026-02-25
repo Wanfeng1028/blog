@@ -45,9 +45,9 @@ export function UserDashboard({ overview, recent }: DashboardProps) {
 
   return (
     <div className="w-full space-y-4">
-      <section className="wanfeng-user-panel rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-500 to-sky-500 p-6">
-        <h2 className="mb-1 text-3xl font-bold text-white">欢迎来到用户仪表盘</h2>
-        <p className="text-cyan-50">在这里可以查看概览、个人资料和账号安全状态。</p>
+      <section className="wanfeng-user-panel rounded-2xl border border-teal-700/30 bg-teal-600 p-6">
+        <h2 className="mb-1 text-3xl font-bold text-black">欢迎来到用户仪表盘</h2>
+        <p className="text-black">在这里可以查看概览、个人资料和账号安全状态。</p>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
