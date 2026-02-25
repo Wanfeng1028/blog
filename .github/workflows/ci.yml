@@ -55,11 +55,15 @@ jobs:
         run: pnpm prisma generate
 
       # 关键：CI 里不要用 prisma migrate dev（交互式）
-      - name: Apply migrations (CI-safe)
-        run: pnpm prisma migrate deploy
+      - name: Sync schema to DB (CI fast path)
+        run: pnpm prisma db push --accept-data-loss
+
 
       - name: Seed database
-        run: pnpm db:seed
+        run: pnpm prisma db seed
+        
+
+        
 
       # 如果你这个脚本不是每次都必须，可以保留 if-present 更稳
       - name: Build search index (optional)
