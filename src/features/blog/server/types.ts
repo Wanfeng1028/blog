@@ -20,6 +20,8 @@ export type PostPreview = {
   publishedAt: Date | null;
   readingTime: number;
   tags: string[];
+  likesCount: number;
+  viewsCount: number;
   category?: {
     id: string;
     name: string;

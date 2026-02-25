@@ -24,7 +24,7 @@ export default async function DashboardProfilePage() {
       profile={{
         email: user.email,
         role: user.role,
-        createdAt: user.createdAt.toISOString(),
+        createdAt: new Date(user.createdAt).toISOString(),
         name: user.name,
         image: user.image,
         bio: profileExtra.bio,

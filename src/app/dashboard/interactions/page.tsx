@@ -15,7 +15,7 @@ export default async function DashboardInteractionsPage() {
     <UserInteractionsPanel
       favorites={favorites.map((item) => ({
         id: item.id,
-        createdAt: item.createdAt.toISOString(),
+        createdAt: new Date(item.createdAt).toISOString(),
         post: {
           id: item.post.id,
           title: item.post.title,
@@ -25,7 +25,7 @@ export default async function DashboardInteractionsPage() {
       }))}
       likes={likes.map((item) => ({
         id: item.id,
-        createdAt: item.createdAt.toISOString(),
+        createdAt: new Date(item.createdAt).toISOString(),
         post: {
           id: item.post.id,
           title: item.post.title,
@@ -37,7 +37,7 @@ export default async function DashboardInteractionsPage() {
         id: item.id,
         content: item.content,
         status: item.status,
-        createdAt: item.createdAt.toISOString(),
+        createdAt: new Date(item.createdAt).toISOString(),
         post: {
           title: item.post.title,
           slug: item.post.slug

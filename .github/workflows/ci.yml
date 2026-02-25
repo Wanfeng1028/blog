@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:16
@@ -19,28 +20,57 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres"
+          --health-cmd "pg_isready -U postgres -d wanfeng_blog"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
+
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/wanfeng_blog?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/wanfeng_blog?schema=public
       AUTH_SECRET: ci-secret
+      NEXTAUTH_SECRET: ci-secret
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3000
+      AUTH_TRUST_HOST: "true"
+      NODE_ENV: test
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 10
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm db:generate
-      - run: pnpm db:migrate
-      - run: pnpm db:seed
-      - run: pnpm db:search-index
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+
+      # 关键：CI 里不要用 prisma migrate dev（交互式）
+      - name: Apply migrations (CI-safe)
+        run: pnpm prisma migrate deploy
+
+      - name: Seed database
+        run: pnpm db:seed
+
+      # 如果你这个脚本不是每次都必须，可以保留 if-present 更稳
+      - name: Build search index (optional)
+        run: pnpm run --if-present db:search-index
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test

@@ -37,8 +37,8 @@ export function HomeLeftSidebar({ postCount, categoryCount, tagCount }: HomeLeft
     <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
       <section className="overflow-hidden rounded-[22px] border border-white/50 bg-[linear-gradient(155deg,rgba(255,255,255,0.72)_0%,rgba(229,231,235,0.62)_48%,rgba(161,161,170,0.45)_100%)] shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-md">
         <div className="space-y-3 px-5 py-5">
-          <h3 className="text-3xl font-semibold tracking-wide text-blue-600">精选（实则鸡汤）</h3>
-          <p className="text-base font-semibold text-zinc-900">你不必完美，也可以很棒👍。</p>
+          <h3 className="text-3xl font-semibold tracking-wide text-blue-600">精选</h3>
+          <p className="text-base font-semibold text-zinc-900">你不必完美，也可以很棒👍</p>
         </div>
 
         <div className="bg-[linear-gradient(180deg,rgba(82,82,91,0.72)_0%,rgba(212,212,216,0.45)_100%)] px-5 py-5 text-center">

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ProjectStats } from "@/components/projects/project-stats";
 import { GITHUB_PROFILE_URL } from "@/features/projects/data";
 import { getProjectBySlug, listProjects } from "@/features/projects/server";
+import { GithubMarkdownRenderer } from "@/lib/markdown/github-render";
 
 type ProjectDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -76,19 +77,29 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <section className="space-y-2">
-            <h2 className="text-lg font-semibold text-zinc-900">项目简介</h2>
-            <p className="text-sm leading-7 text-zinc-700">{project.summary}</p>
-          </section>
+          {project.content ? (
+            /* ── GitHub-style Markdown rendering ── */
+            <section>
+              <GithubMarkdownRenderer content={project.content} />
+            </section>
+          ) : (
+            /* ── Fallback: structured fields (no content set yet) ── */
+            <>
+              <section className="space-y-2">
+                <h2 className="text-lg font-semibold text-zinc-900">项目简介</h2>
+                <p className="text-sm leading-7 text-zinc-700">{project.summary}</p>
+              </section>
 
-          <section className="space-y-2">
-            <h2 className="text-lg font-semibold text-zinc-900">关键工作</h2>
-            <ul className="list-disc space-y-2 pl-5 text-sm leading-7 text-zinc-700">
-              {project.highlights.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
+              <section className="space-y-2">
+                <h2 className="text-lg font-semibold text-zinc-900">关键工作</h2>
+                <ul className="list-disc space-y-2 pl-5 text-sm leading-7 text-zinc-700">
+                  {project.highlights.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </section>
+            </>
+          )}
 
           <section className="space-y-3">
             <h2 className="text-lg font-semibold text-zinc-900">技术栈</h2>

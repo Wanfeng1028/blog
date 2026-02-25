@@ -39,23 +39,23 @@ type DashboardProps = {
 
 export function AdminDashboard({ overview, latestUsers, latestEvents }: DashboardProps) {
   const cards = [
-    { title: "总用户数", value: overview.users, icon: <TeamOutlined />, color: "from-cyan-400 to-sky-500" },
-    { title: "文章总数", value: overview.posts, icon: <FileTextOutlined />, color: "from-emerald-400 to-teal-500" },
-    { title: "项目总数", value: overview.projects, icon: <ProjectOutlined />, color: "from-violet-400 to-purple-500" },
-    { title: "标签总数", value: overview.tags, icon: <TagsOutlined />, color: "from-amber-400 to-orange-500" },
-    { title: "评论总数", value: overview.comments, icon: <MessageOutlined />, color: "from-pink-400 to-rose-500" },
-    { title: "已发布文章", value: overview.publishedPosts, icon: <FileTextOutlined />, color: "from-blue-400 to-cyan-500" },
-    { title: "安全告警", value: overview.securityAlerts, icon: <AlertOutlined />, color: "from-red-400 to-rose-500" },
-    { title: "登录失败", value: overview.failedLogins, icon: <AlertOutlined />, color: "from-slate-400 to-slate-600" }
+    { title: "总用户数", value: overview.users, icon: <TeamOutlined />, color: "bg-sky-500" },
+    { title: "文章总数", value: overview.posts, icon: <FileTextOutlined />, color: "bg-teal-600" },
+    { title: "项目总数", value: overview.projects, icon: <ProjectOutlined />, color: "bg-slate-500" },
+    { title: "标签总数", value: overview.tags, icon: <TagsOutlined />, color: "bg-amber-500" },
+    { title: "评论总数", value: overview.comments, icon: <MessageOutlined />, color: "bg-rose-400" },
+    { title: "已发布文章", value: overview.publishedPosts, icon: <FileTextOutlined />, color: "bg-cyan-600" },
+    { title: "安全告警", value: overview.securityAlerts, icon: <AlertOutlined />, color: "bg-red-500" },
+    { title: "登录失败", value: overview.failedLogins, icon: <AlertOutlined />, color: "bg-slate-400" }
   ];
 
   return (
     <Space orientation="vertical" size={16} className="w-full">
-      <Card className="wanfeng-admin-panel !rounded-2xl !border-cyan-100 !bg-gradient-to-r !from-cyan-500 !to-sky-500">
-        <Typography.Title level={3} className="!mb-1 !text-white">
+      <Card className="wanfeng-admin-panel !rounded-2xl !border-teal-700/30 !bg-teal-600">
+        <Typography.Title level={3} className="!mb-1 !text-black/90">
           早上好，系统管理员
         </Typography.Title>
-        <Typography.Text className="!text-cyan-50">
+        <Typography.Text className="!text-black/90">
           这里是晚风博客后台概览，你可以在这里快速查看全站运行状态。
         </Typography.Text>
       </Card>
@@ -64,7 +64,7 @@ export function AdminDashboard({ overview, latestUsers, latestEvents }: Dashboar
         {cards.map((item) => (
           <Col xs={24} sm={12} lg={6} key={item.title}>
             <Card className="wanfeng-admin-panel">
-              <div className={`mb-3 inline-flex rounded-lg bg-gradient-to-r px-2 py-1 text-white ${item.color}`}>
+              <div className={`mb-3 inline-flex rounded-lg px-2 py-1 text-white ${item.color}`}>
                 {item.icon}
               </div>
               <Statistic title={item.title} value={item.value} />

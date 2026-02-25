@@ -23,14 +23,32 @@ export function ProjectStats({ slug, initialLikes, initialViews, interactive = f
 
     const boot = async () => {
       try {
-        const [likeRes, viewRes] = await Promise.all([
+        // sessionStorage 30min 去重：避免用户每次刷新都计一次浏览
+        const SS_KEY = `pv:proj:${slug}`;
+        const WINDOW_MS = 30 * 60 * 1000;
+        let shouldTrackView = true;
+        try {
+          const raw = sessionStorage.getItem(SS_KEY);
+          if (raw) {
+            const ts = Number(raw);
+            if (!Number.isNaN(ts) && Date.now() - ts < WINDOW_MS) {
+              shouldTrackView = false;
+            }
+          }
+        } catch {
+          // sessionStorage 不可用（隐私模式等）→ 照常上报
+        }
+
+        const requests: [Promise<Response>, Promise<Response> | null] = [
           fetch(`/api/projects/${slug}/like`, { cache: "no-store" }),
-          fetch(`/api/projects/${slug}/view`, { method: "POST" })
-        ]);
+          shouldTrackView ? fetch(`/api/projects/${slug}/view`, { method: "POST" }) : null
+        ];
+
+        const [likeRes, viewRes] = await Promise.all(requests);
 
         if (!active) return;
 
-        if (likeRes.ok) {
+        if (likeRes?.ok) {
           const payload = await likeRes.json();
           if (payload?.ok) {
             setLiked(Boolean(payload.data?.liked));
@@ -38,10 +56,12 @@ export function ProjectStats({ slug, initialLikes, initialViews, interactive = f
           }
         }
 
-        if (viewRes.ok) {
+        if (viewRes?.ok) {
           const payload = await viewRes.json();
           if (payload?.ok) {
             setViews(Number(payload.data?.viewsCount ?? initialViews));
+            // 记录本次浏览时间
+            try { sessionStorage.setItem(SS_KEY, String(Date.now())); } catch { /* ignore */ }
           }
         }
       } catch {

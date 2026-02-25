@@ -2,10 +2,33 @@ import { db } from "@/lib/db";
 import { getSecurityAlerts } from "@/lib/auth/security";
 import { AdminSettingsPanel } from "@/features/admin/components/admin-settings-panel";
 import { AdminProjectsPanel } from "@/features/admin/components/admin-projects-panel";
+import { AdminBgmPanel, type BgmRecord } from "@/features/admin/components/admin-bgm-panel";
 import { listMessages } from "@/lib/message-board";
 import { listFriendLinks } from "@/lib/friend-links";
 import { listDonations } from "@/lib/donations";
 import { getSiteSettings } from "@/lib/site-settings";
+import { Prisma } from "@prisma/client";
+
+async function getBgmRecords(): Promise<BgmRecord[]> {
+  try {
+    await db.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS bgm_manager (
+        id          TEXT        PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        original_name TEXT      NOT NULL,
+        file_path   TEXT        NOT NULL,
+        is_active   BOOLEAN     NOT NULL DEFAULT false,
+        upload_time TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    const rows = await db.$queryRaw<BgmRecord[]>(
+      Prisma.sql`SELECT id, original_name, file_path, is_active, upload_time::text AS upload_time
+                 FROM bgm_manager ORDER BY upload_time DESC`
+    );
+    return rows;
+  } catch {
+    return [];
+  }
+}
 
 async function getAdminProjects() {
   const projectClient = (db as any).project;
@@ -38,7 +61,7 @@ async function getAdminProjects() {
 }
 
 export default async function AdminSettingsPage() {
-  const [users, comments, alerts, projects, messages, friendLinks, donations, siteSettings] = await Promise.all([
+  const [users, comments, alerts, projects, messages, friendLinks, donations, siteSettings, bgmRecords] = await Promise.all([
     db.user.findMany({
       orderBy: { createdAt: "desc" },
       select: { id: true, email: true, role: true, name: true, createdAt: true }
@@ -63,11 +86,13 @@ export default async function AdminSettingsPage() {
     listMessages({ admin: true, status: "ALL", limit: 100 }),
     listFriendLinks({ status: "ALL", limit: 120 }),
     listDonations({ status: "ALL", limit: 120 }),
-    getSiteSettings()
+    getSiteSettings(),
+    getBgmRecords()
   ]);
 
   return (
     <div className="space-y-4">
+      <AdminBgmPanel initialRecords={bgmRecords} />
       <AdminProjectsPanel
         initialProjects={projects.map((item) => ({
           id: item.id,
@@ -83,6 +108,7 @@ export default async function AdminSettingsPage() {
           githubUrl: item.githubUrl,
           demoUrl: item.demoUrl,
           sourceRepo: item.sourceRepo,
+          content: null,
           likesCount: item.likesCount,
           viewsCount: item.viewsCount,
           updatedAt: item.updatedAt.toISOString()

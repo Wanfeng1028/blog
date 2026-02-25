@@ -7,6 +7,12 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx,mdx}"],
   theme: {
     extend: {
+      fontFamily: {
+        // font-sans → Inter (Latin) + 霞鹜文楷 Screen (中文) + Noto Sans SC (fallback)
+        sans: ["var(--font-sans)", "LXGW WenKai Screen", "var(--font-zh)", "system-ui", "sans-serif"],
+        // font-mono → JetBrains Mono
+        mono: ["var(--font-mono)", "ui-monospace", "Menlo", "monospace"]
+      },
       colors: {
         bg: "rgb(var(--color-bg) / <alpha-value>)",
         surface: "rgb(var(--color-surface) / <alpha-value>)",

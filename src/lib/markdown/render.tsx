@@ -1,8 +1,11 @@
-import ReactMarkdown from "react-markdown";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkRehype from "remark-rehype";
+import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
+import rehypeStringify from "rehype-stringify";
 
 const prettyCodeOptions = {
   theme: {
@@ -17,19 +20,23 @@ const prettyCodeOptions = {
   }
 };
 
-export function MarkdownRenderer({ content }: { content: string }) {
+/** async Server Component — 用 unified 原生异步流水线处理 Markdown，
+ *  避免 rehype-pretty-code (shiki) 在 runSync 中报错 */
+export async function MarkdownRenderer({ content }: { content: string }) {
+  const file = await unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeSlug)
+    .use(rehypeAutolinkHeadings, { behavior: "append" })
+    .use(rehypePrettyCode, prettyCodeOptions)
+    .use(rehypeStringify, { allowDangerousHtml: true })
+    .process(content);
+
   return (
-    <article className="prose prose-slate max-w-none dark:prose-invert">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[
-          rehypeSlug,
-          [rehypeAutolinkHeadings, { behavior: "append" }],
-          [rehypePrettyCode, prettyCodeOptions]
-        ]}
-      >
-        {content}
-      </ReactMarkdown>
-    </article>
+    <article
+      className="prose prose-slate max-w-none dark:prose-invert"
+      dangerouslySetInnerHTML={{ __html: String(file) }}
+    />
   );
 }

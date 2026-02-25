@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Space, Table, Tag, Typography, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { ProjectMarkdownEditor } from "@/features/admin/components/project-markdown-editor";
 
 type ProjectRow = {
   id: string;
@@ -18,6 +19,7 @@ type ProjectRow = {
   githubUrl: string | null;
   demoUrl: string | null;
   sourceRepo: string | null;
+  content: string | null;
   likesCount: number;
   viewsCount: number;
   updatedAt: string;
@@ -36,6 +38,7 @@ type ProjectFormValues = {
   githubUrl?: string;
   demoUrl?: string;
   sourceRepo?: string;
+  content?: string;
 };
 
 function toPayload(values: ProjectFormValues) {
@@ -57,7 +60,8 @@ function toPayload(values: ProjectFormValues) {
       .filter(Boolean),
     githubUrl: values.githubUrl?.trim() || "",
     demoUrl: values.demoUrl?.trim() || "",
-    sourceRepo: values.sourceRepo?.trim() || ""
+    sourceRepo: values.sourceRepo?.trim() || "",
+    content: values.content ?? ""
   };
 }
 
@@ -66,7 +70,47 @@ export function AdminProjectsPanel({ initialProjects }: { initialProjects: Proje
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [syncingReadme, setSyncingReadme] = useState(false);
   const [form] = Form.useForm<ProjectFormValues>();
+
+  /** Parse a GitHub URL or bare "owner/repo" string into "owner/repo" */
+  function parseGithubRepo(input: string): string | null {
+    const trimmed = input.trim();
+    try {
+      const url = new URL(trimmed);
+      if (!url.hostname.includes("github.com")) return null;
+      const parts = url.pathname.split("/").filter(Boolean);
+      return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : null;
+    } catch {
+      const parts = trimmed.split("/").filter(Boolean);
+      return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : null;
+    }
+  }
+
+  /** Fetch README from GitHub and fill the content editor */
+  const syncReadme = async () => {
+    const githubUrl = form.getFieldValue("githubUrl") as string;
+    const repo = parseGithubRepo(githubUrl ?? "");
+    if (!repo) {
+      message.warning("请先填写有效的 GitHub 仓库地址（如 https://github.com/owner/repo）");
+      return;
+    }
+    setSyncingReadme(true);
+    try {
+      const res = await fetch(`/api/admin/projects/readme?repo=${encodeURIComponent(githubUrl ?? repo)}`);
+      const result = await res.json();
+      if (!res.ok || !result.ok) {
+        message.error(result.message ?? "获取 README 失败");
+        return;
+      }
+      form.setFieldValue("content", result.data.content as string);
+      message.success(`README 已同步（${String(result.data.content).length.toLocaleString()} 字符）`);
+    } catch {
+      message.error("网络错误，请稍后重试");
+    } finally {
+      setSyncingReadme(false);
+    }
+  };
 
   const maxOrder = useMemo(
     () => (projects.length ? Math.max(...projects.map((item) => item.order)) : 0),
@@ -95,7 +139,8 @@ export function AdminProjectsPanel({ initialProjects }: { initialProjects: Proje
       techStackText: "",
       githubUrl: "",
       demoUrl: "",
-      sourceRepo: ""
+      sourceRepo: "",
+      content: ""
     });
     setOpen(true);
   };
@@ -114,7 +159,8 @@ export function AdminProjectsPanel({ initialProjects }: { initialProjects: Proje
       techStackText: row.techStack.join(", "),
       githubUrl: row.githubUrl ?? "",
       demoUrl: row.demoUrl ?? "",
-      sourceRepo: row.sourceRepo ?? ""
+      sourceRepo: row.sourceRepo ?? "",
+      content: row.content ?? ""
     });
     setOpen(true);
   };
@@ -285,6 +331,25 @@ export function AdminProjectsPanel({ initialProjects }: { initialProjects: Proje
           </Space>
           <Form.Item name="sourceRepo" label="仓库名（可选）">
             <Input placeholder="例如：wanfeng-blog-web" />
+          </Form.Item>
+
+          {/* ── Markdown content editor ── */}
+          <div className="mb-2 mt-4 flex items-center justify-between">
+            <Typography.Text strong>项目详情（Markdown）</Typography.Text>
+            <Button
+              size="small"
+              loading={syncingReadme}
+              onClick={syncReadme}
+              title="根据上方 GitHub 链接，自动拉取仓库的 README.md 填入编辑器"
+            >
+              ⬇️ 一键同步 README
+            </Button>
+          </div>
+          <Typography.Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
+            填写后将在项目详情页以 GitHub 风格渲染，留空则继续展示摘要与亮点列表。
+          </Typography.Text>
+          <Form.Item name="content" noStyle>
+            <ProjectMarkdownEditor />
           </Form.Item>
         </Form>
       </Modal>

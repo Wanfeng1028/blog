@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { MarkdownRenderer } from "@/lib/markdown/render";
 import { absoluteUrl } from "@/lib/site";
 import { getAdjacentPosts, getCommentsByPostSlug, getPostBySlug } from "@/features/blog/server/queries";
-import { TocNav } from "@/features/blog/components/toc-nav";
 import { CommentSection } from "@/features/blog/components/comment-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,7 +74,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_260px]">
+    <div>
       <script
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(articleJsonLd)
@@ -106,7 +105,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
               </a>
             </Button>
           </div>
-          <PostInteractionBar postId={post.id} />
+          <PostInteractionBar initialLikes={post.likesCount ?? 0} postId={post.id} />
         </header>
 
         <MarkdownRenderer content={post.content} />
@@ -143,10 +142,6 @@ export default async function BlogDetailPage({ params }: PageProps) {
         />
 
       </article>
-
-      <div className="lg:sticky lg:top-24 lg:self-start">
-        <TocNav toc={post.toc} />
-      </div>
     </div>
   );
 }

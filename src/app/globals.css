@@ -3,22 +3,22 @@
 @tailwind utilities;
 
 ::selection {
-  background-color: #3b82f6;
-  color: #000000;
+  background-color: rgba(13, 148, 136, 0.22); /* teal-600/22% */
+  color: inherit;
 }
 
 :root {
   /* Zinc 50 / White Theme */
   --color-bg: 250 250 250;
   --color-surface: 255 255 255;
-  --color-text: 0 0 0;
-  --color-primary: 24 24 27; /* Zinc 900 (Black) */
+  --color-text: 31 41 55;       /* #1F2937 深灰，不刺眼的阅读色 */
+  --color-primary: 24 24 27;   /* Zinc 900 */
   --color-secondary: 244 244 245;
-  --color-muted: 0 0 0;
+  --color-muted: 107 114 128;   /* #6B7280 Gray-500，辅助文字色 */
   --color-border: 228 228 231;
 
   --font-body-size: 1rem;
-  --font-body-line: 1.75rem;
+  --font-body-line: 1.875;      /* 无单位比例，提升长文阅读舘适度 */
   --font-h1-size: clamp(2.1rem, 4vw, 3.2rem);
   --font-h1-line: 1.15;
   --font-h2-size: clamp(1.7rem, 3vw, 2.25rem);
@@ -48,10 +48,10 @@
   /* Zinc 950 Theme */
   --color-bg: 9 9 11;
   --color-surface: 24 24 27;
-  --color-text: 0 0 0;
-  --color-primary: 250 250 250; /* White primary in dark mode */
+  --color-text: 241 245 249;    /* slate-100，暗色背景下的柔和白 */
+  --color-primary: 250 250 250;
   --color-secondary: 39 39 42;
-  --color-muted: 0 0 0;
+  --color-muted: 148 163 184;   /* slate-400 */
   --color-border: 39 39 42;
 }
 
@@ -59,27 +59,19 @@
   border-color: var(--color-border);
 }
 
-body,
-button,
-input,
-select,
-textarea,
-label,
-p,
-span,
-a,
-li,
-td,
-th,
-div,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-small {
-  font-weight: 700 !important;
+/* 标题导航: 出色字重 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+/* UI 控件: 半糟字重，更清晰易读 */
+button, label {
+  font-weight: 600;
+}
+
+/* 表单控件: 正常字重，不显笨重 */
+input, select, textarea {
+  font-weight: 400;
 }
 
 html,
@@ -94,6 +86,10 @@ html {
 }
 
 body {
+  /* 字体栈: Inter(英文/数字) → 霞鹜文楷 Screen(中文文艺) → Noto Sans SC(fallback) → 系统 */
+  font-family: var(--font-sans), "LXGW WenKai Screen", var(--font-zh), system-ui, sans-serif;
+  font-size: var(--font-body-size);
+  line-height: var(--font-body-line);
   color: rgb(var(--color-text));
   background:
     linear-gradient(180deg, rgba(191, 219, 254, 0.2) 0%, rgba(239, 246, 255, 0.16) 56%, rgba(191, 219, 254, 0.18) 100%),
@@ -103,6 +99,11 @@ body {
   background-size: cover;
   background-attachment: fixed;
   font-feature-settings: "liga", "calt";
+}
+
+/* 代码字体: JetBrains Mono */
+code, pre, kbd, samp, tt {
+  font-family: var(--font-mono), "JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 
 .container {
@@ -346,4 +347,237 @@ body {
     rgba(255, 255, 255, 0) 62%
   );
 }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GitHub Markdown  (.gh-markdown)
+   Mirrors github.com/user/repo README rendering exactly.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Shiki dual-theme variable binding */
+.gh-markdown [data-rehype-pretty-code-figure] pre span {
+  color: var(--shiki-light);
+}
+.dark .gh-markdown [data-rehype-pretty-code-figure] pre span {
+  color: var(--shiki-dark) !important;
+}
+.dark .gh-markdown [data-rehype-pretty-code-figure] pre {
+  background-color: #0d1117 !important;
+}
+
+.gh-markdown {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 16px;
+  line-height: 1.5;
+  color: #1f2328;
+  word-wrap: break-word;
+}
+.gh-markdown > *:first-child { margin-top: 0 !important; }
+.gh-markdown > *:last-child  { margin-bottom: 0 !important; }
+
+/* ── Reset global font-weight override for prose content ── */
+.gh-markdown p,
+.gh-markdown li,
+.gh-markdown td,
+.gh-markdown th,
+.gh-markdown span,
+.gh-markdown a,
+.gh-markdown blockquote,
+.gh-markdown div {
+  font-weight: 400 !important;
+}
+
+/* ── Links ── */
+.gh-markdown a {
+  color: #0969da;
+  text-decoration: none;
+}
+.gh-markdown a:hover { text-decoration: underline; }
+
+/* ── Headings ── */
+.gh-markdown h1,
+.gh-markdown h2,
+.gh-markdown h3,
+.gh-markdown h4,
+.gh-markdown h5,
+.gh-markdown h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600 !important;
+  line-height: 1.25;
+}
+.gh-markdown h1,
+.gh-markdown h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #d0d7de;
+}
+.gh-markdown h1 { font-size: 2em;    margin: 0.67em 0; }
+.gh-markdown h2 { font-size: 1.5em;  }
+.gh-markdown h3 { font-size: 1.25em; }
+.gh-markdown h4 { font-size: 1em;    }
+.gh-markdown h5 { font-size: 0.875em;}
+.gh-markdown h6 { font-size: 0.85em; color: #636e7b; }
+
+/* ── Paragraphs ── */
+.gh-markdown p { margin-top: 0; margin-bottom: 16px; }
+
+/* ── Blockquote ── */
+.gh-markdown blockquote {
+  margin: 0 0 16px 0;
+  padding: 0 1em;
+  color: #59636e;
+  border-left: 0.25em solid #d0d7de;
+}
+.gh-markdown blockquote > :first-child { margin-top: 0; }
+.gh-markdown blockquote > :last-child  { margin-bottom: 0; }
+
+/* ── Lists ── */
+.gh-markdown ul,
+.gh-markdown ol {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-left: 2em;
+}
+.gh-markdown ul ul,
+.gh-markdown ul ol,
+.gh-markdown ol ol,
+.gh-markdown ol ul { margin-top: 0; margin-bottom: 0; }
+.gh-markdown li { word-wrap: break-all; }
+.gh-markdown li > p { margin-top: 16px; }
+.gh-markdown li + li { margin-top: 0.25em; }
+
+/* ── Tables ── */
+.gh-markdown table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+.gh-markdown table th { font-weight: 600 !important; }
+.gh-markdown table th,
+.gh-markdown table td {
+  padding: 6px 13px;
+  border: 1px solid #d0d7de;
+}
+.gh-markdown table tr {
+  background-color: #ffffff;
+  border-top: 1px solid hsla(210, 18%, 87%, 1);
+}
+.gh-markdown table tr:nth-child(2n) { background-color: #f6f8fa; }
+
+/* ── Inline code ── */
+.gh-markdown :not(pre) > code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: rgba(175, 184, 193, 0.2);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-weight: 400 !important;
+}
+
+/* ── Code blocks ── */
+.gh-markdown pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  color: #1f2328;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  word-wrap: normal;
+}
+.gh-markdown pre code {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+  font-size: 100%;
+  font-weight: 400 !important;
+}
+/* rehype-pretty-code wraps in a figure */
+.gh-markdown [data-rehype-pretty-code-figure] {
+  margin-bottom: 16px;
+}
+.gh-markdown [data-rehype-pretty-code-figure] pre {
+  margin-bottom: 0;
+  border-radius: 6px;
+  background-color: #f6f8fa;
+}
+
+/* ── Horizontal rule ── */
+.gh-markdown hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #d0d7de;
+  border: 0;
+}
+
+/* ── Images ── */
+.gh-markdown img {
+  max-width: 100%;
+  box-sizing: content-box;
+  border-style: none;
+}
+
+/* ── Keyboard ── */
+.gh-markdown kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font-size: 11px;
+  line-height: 10px;
+  color: #1f2328;
+  vertical-align: middle;
+  background-color: #f6f8fa;
+  border: solid 1px rgba(175, 184, 193, 0.2);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 rgba(175, 184, 193, 0.2);
+  font-weight: 400 !important;
+}
+
+/* ━━ Dark mode overrides ━━ */
+.dark .gh-markdown { color: #e6edf3; }
+.dark .gh-markdown a  { color: #58a6ff; }
+.dark .gh-markdown h1,
+.dark .gh-markdown h2 { border-color: #30363d; }
+.dark .gh-markdown h6 { color: #848d97; }
+.dark .gh-markdown blockquote {
+  color: #848d97;
+  border-left-color: #3d444d;
+}
+.dark .gh-markdown table th,
+.dark .gh-markdown table td { border-color: #3d444d; }
+.dark .gh-markdown table tr {
+  background-color: #0d1117;
+  border-top-color: #3d444d;
+}
+.dark .gh-markdown table tr:nth-child(2n) { background-color: #161b22; }
+.dark .gh-markdown :not(pre) > code {
+  background-color: rgba(110, 118, 129, 0.4);
+}
+.dark .gh-markdown pre {
+  background-color: #161b22;
+  color: #e6edf3;
+}
+.dark .gh-markdown [data-rehype-pretty-code-figure] pre {
+  background-color: #161b22;
+}
+.dark .gh-markdown hr { background-color: #30363d; }
+.dark .gh-markdown kbd {
+  color: #e6edf3;
+  background-color: #161b22;
+  border-color: rgba(110, 118, 129, 0.4);
 }

@@ -34,9 +34,22 @@ async function createUniqueProjectSlug(title: string, currentId?: string) {
 export async function listAdminProjects() {
   const projectClient = getProjectClient();
   if (!projectClient) return [];
-  return projectClient.findMany({
+  const items = (await projectClient.findMany({
     orderBy: [{ order: "asc" }, { createdAt: "desc" }]
-  });
+  })) as Array<any>;
+
+  // Merge content via raw SQL (stale Prisma client won't include it in SELECT)
+  try {
+    const rows = await db.$queryRaw<Array<{ id: string; content: string | null }>>`
+      SELECT id, content FROM "Project"
+    `;
+    const map = new Map(rows.map((r) => [r.id, r.content]));
+    for (const item of items) item.content = map.get(item.id) ?? null;
+  } catch {
+    // ignore if column doesn't exist yet
+  }
+
+  return items;
 }
 
 export async function createProject(input: unknown) {
@@ -51,7 +64,9 @@ export async function createProject(input: unknown) {
   const data = parsed.data;
   const slug = await createUniqueProjectSlug(data.slug?.trim() || data.title);
 
-  return projectClient.create({
+  // Create without `content` so it works even if Prisma client hasn't been
+  // regenerated yet (content column exists in DB but not in stale client types).
+  const project = await projectClient.create({
     data: {
       order: data.order,
       slug,
@@ -67,6 +82,13 @@ export async function createProject(input: unknown) {
       sourceRepo: data.sourceRepo || null
     }
   });
+
+  // Write content via raw SQL — bypasses stale Prisma client field validation.
+  if (data.content != null) {
+    await db.$executeRaw`UPDATE "Project" SET content = ${data.content} WHERE id = ${project.id}`;
+  }
+
+  return project;
 }
 
 export async function updateProject(input: unknown) {
@@ -92,7 +114,8 @@ export async function updateProject(input: unknown) {
         ? await createUniqueProjectSlug(data.title, data.id)
         : existing.slug;
 
-  return projectClient.update({
+  // Update without `content` first (stale client safe).
+  const project = await projectClient.update({
     where: { id: data.id },
     data: {
       order: data.order,
@@ -109,6 +132,13 @@ export async function updateProject(input: unknown) {
       sourceRepo: data.sourceRepo || null
     }
   });
+
+  // Write content via raw SQL.
+  if (data.content != null) {
+    await db.$executeRaw`UPDATE "Project" SET content = ${data.content} WHERE id = ${data.id}`;
+  }
+
+  return project;
 }
 
 export async function deleteProject(id: string) {

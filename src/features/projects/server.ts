@@ -20,6 +20,7 @@ export type ProjectViewModel = {
   demoUrl?: string;
   likesCount: number;
   viewsCount: number;
+  content?: string;
 };
 
 type GitHubRepo = {
@@ -58,7 +59,8 @@ function seedToViewModel(seed: ProjectSeed): ProjectViewModel {
     githubUrl: s.githubUrl ?? GITHUB_PROFILE_URL,
     demoUrl: s.demoUrl,
     likesCount: 0,
-    viewsCount: 0
+    viewsCount: 0,
+    content: undefined
   };
 }
 
@@ -77,6 +79,7 @@ function toViewModel(project: {
   demoUrl: string | null;
   likesCount: number;
   viewsCount: number;
+  content?: string | null;
 }): ProjectViewModel {
   return {
     id: project.id,
@@ -92,7 +95,8 @@ function toViewModel(project: {
     githubUrl: project.githubUrl ?? GITHUB_PROFILE_URL,
     demoUrl: project.demoUrl ?? undefined,
     likesCount: project.likesCount,
-    viewsCount: project.viewsCount
+    viewsCount: project.viewsCount,
+    content: project.content ?? undefined
   };
 }
 
@@ -167,7 +171,13 @@ async function listProjectsInternal(): Promise<ProjectViewModel[]> {
   try {
     await ensureProjectsSeededCached();
     const items = (await projectClient.findMany({
-      orderBy: [{ order: "asc" }, { createdAt: "asc" }]
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true, order: true, slug: true, title: true, subtitle: true,
+        role: true, period: true, summary: true, highlights: true, techStack: true,
+        githubUrl: true, demoUrl: true, sourceRepo: true, likesCount: true, viewsCount: true
+        // content deliberately excluded from list query (large field)
+      }
     })) as Array<any>;
     return items.map((item) => toViewModel(item));
   } catch (error) {
@@ -195,6 +205,18 @@ async function getProjectBySlugInternal(slug: string): Promise<ProjectViewModel 
     await ensureProjectsSeededCached();
     const project = (await projectClient.findUnique({ where: { slug } })) as any;
     if (!project) return null;
+
+    // Fetch `content` via raw SQL — the Prisma client may not include it in its
+    // SELECT if `prisma generate` hasn't been re-run after adding the column.
+    try {
+      const rows = await db.$queryRaw<Array<{ content: string | null }>>`
+        SELECT content FROM "Project" WHERE slug = ${slug} LIMIT 1
+      `;
+      project.content = rows[0]?.content ?? null;
+    } catch {
+      // column may not exist yet on older DBs — keep content undefined
+    }
+
     return toViewModel(project);
   } catch (error) {
     if (isMissingProjectTableError(error)) {

@@ -51,7 +51,7 @@ export function LoginForm() {
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.id) return;
     const target = callbackUrl && callbackUrl !== "/login" ? callbackUrl : "/dashboard";
-    window.location.href = target;
+    router.push(target);
   }, [status, session, callbackUrl]);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -83,7 +83,7 @@ export function LoginForm() {
 
       toast.success("登录成功");
       const target = callbackUrl && callbackUrl !== "/login" ? callbackUrl : "/dashboard";
-      window.location.href = target;
+      router.push(target);
     });
   };
 

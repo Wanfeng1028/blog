@@ -74,6 +74,8 @@ model Post {
   coverImage  String?
   readingTime Int        @default(0)
   toc         Json?
+  likesCount  Int        @default(0)
+  viewsCount  Int        @default(0)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   category    ArticleCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -294,10 +296,24 @@ model Project {
   demoUrl     String?
   sourceRepo  String?
   slug        String?  @unique
-  likesCount  Int      @default(0)
-  viewsCount  Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  content     String?  @db.Text
+  likesCount  Int          @default(0)
+  viewsCount  Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  likes       ProjectLike[]
+}
+
+model ProjectLike {
+  id        String   @id @default(cuid())
+  projectId String
+  viewerId  String
+  userId    String?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, viewerId])
+  @@index([projectId])
 }
 
 model site_settings {

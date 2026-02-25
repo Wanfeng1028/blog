@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronRight,
   Globe,
+  Loader2,
   Menu,
   Search,
   X
@@ -68,6 +69,7 @@ export function Navbar() {
   const [keyword, setKeyword] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchItems, setSearchItems] = useState<SearchResultItem[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [articleCategories, setArticleCategories] = useState<ArticleCategoryItem[]>([]);
   const [recentPosts, setRecentPosts] = useState<RecentPostItem[]>([]);
   const [webKeyword, setWebKeyword] = useState("");
@@ -78,7 +80,7 @@ export function Navbar() {
   const [isSigningOut, startSignOutTransition] = useTransition();
   const pathname = usePathname();
   const router = useRouter();
-  const { data } = useSession();
+  const { data, status } = useSession();
   const { lang, toggle: toggleLang } = useLang();
   const isAdmin = data?.user?.role === "ADMIN";
   const isHome = pathname === "/";
@@ -225,7 +227,7 @@ export function Navbar() {
                 href: `/blog?category=${category.slug}`,
                 label: `${category.name} (${category.count})`
               }))
-            : []
+            : [{ href: "/blog", label: "查看所有分类" }]
       }
     ];
   };
@@ -417,29 +419,52 @@ export function Navbar() {
 
   useEffect(() => {
     const q = keyword.trim();
+
+    // 字符不足 / 面板关闭 → 立即重置所有状态
     if (!searchOpen || q.length < 2) {
       setSearchItems([]);
       setSearchLoading(false);
+      setSearchError(null);
       return;
     }
+
+    // ① 立即清除 stale 结果，防止旧数据在防抖期间闪现
+    setSearchItems([]);
+    setSearchError(null);
+    setSearchLoading(true);
+
     const controller = new AbortController();
+
+    // ② 500ms 防抖：用户停止打字后才真正发请求
     const timer = setTimeout(async () => {
-      setSearchLoading(true);
       try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(q)}&pageSize=6`, {
-          cache: "no-store",
-          signal: controller.signal
-        });
+        const response = await fetch(
+          `/api/search?q=${encodeURIComponent(q)}&pageSize=6`,
+          { cache: "no-store", signal: controller.signal }
+        );
+
+        if (!response.ok) {
+          setSearchError("搜索服务暂时不可用，请稍后再试");
+          return;
+        }
+
         const result = await response.json();
-        if (response.ok && result.ok) setSearchItems(result.data.items ?? []);
-        else setSearchItems([]);
-      } catch {
-        if (!controller.signal.aborted) setSearchItems([]);
+        if (result.ok) {
+          setSearchItems(result.data.items ?? []);
+        } else {
+          setSearchError("搜索服务暂时不可用，请稍后再试");
+        }
+      } catch (err) {
+        // ③ 只有非 Abort 错误才显示报错提示
+        if (controller.signal.aborted) return;
+        setSearchError("搜索服务暂时不可用，请稍后再试");
       } finally {
         if (!controller.signal.aborted) setSearchLoading(false);
       }
-    }, 280);
+    }, 500);
+
     return () => {
+      // ④ cleanup：取消旧请求 + 清除未触发的定时器
       controller.abort();
       clearTimeout(timer);
     };
@@ -604,6 +629,7 @@ export function Navbar() {
                 </button>
                 {searchOpen ? (
                   <div className="absolute right-0 top-full mt-2 w-[min(92vw,26rem)] rounded-2xl border border-white/35 bg-[linear-gradient(180deg,rgba(191,219,254,0.42)_0%,rgba(239,246,255,0.46)_50%,rgba(191,219,254,0.42)_100%)] p-3 shadow-2xl backdrop-blur-xl">
+                    {/* ── 输入框（右侧内嵌 spinner） ── */}
                     <form
                       onSubmit={(event) => {
                         event.preventDefault();
@@ -613,20 +639,34 @@ export function Navbar() {
                         router.push(`/blog?query=${encodeURIComponent(q)}`);
                       }}
                     >
-                      <input
-                        autoFocus
-                        className="w-full rounded-xl border border-white/40 bg-white/70 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
-                        onChange={(event) => setKeyword(event.target.value)}
-                        placeholder="搜索站内文章（至少 2 个字符）"
-                        value={keyword}
-                      />
+                      <div className="relative">
+                        <input
+                          autoFocus
+                          className="w-full rounded-xl border border-white/40 bg-white/70 px-3 py-2 pr-9 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
+                          onChange={(event) => setKeyword(event.target.value)}
+                          placeholder="搜索站内文章（至少 2 个字符）"
+                          value={keyword}
+                        />
+                        {searchLoading ? (
+                          <Loader2 className="absolute right-2.5 top-1/2 size-4 -translate-y-1/2 animate-spin text-sky-500" />
+                        ) : null}
+                      </div>
                     </form>
-                    <div className="mt-2 max-h-80 overflow-auto">
-                      {searchLoading ? <p className="px-1 py-2 text-sm text-white/90">搜索中...</p> : null}
-                      {!searchLoading && keyword.trim().length >= 2 && searchItems.length === 0 ? (
-                        <p className="px-1 py-2 text-sm text-white/90">没有找到相关内容</p>
+
+                    {/* ── 结果面板（美化滚动条） ── */}
+                    <div className="mt-2 max-h-72 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/40">
+                      {/* error 状态 */}
+                      {!searchLoading && searchError ? (
+                        <p className="px-1 py-2 text-sm text-red-300">{searchError}</p>
                       ) : null}
-                      {!searchLoading ? (
+
+                      {/* empty 状态 */}
+                      {!searchLoading && !searchError && keyword.trim().length >= 2 && searchItems.length === 0 ? (
+                        <p className="px-1 py-2 text-sm text-white/70">未找到相关文章</p>
+                      ) : null}
+
+                      {/* 结果列表 */}
+                      {!searchLoading && !searchError && searchItems.length > 0 ? (
                         <div className="space-y-2">
                           {searchItems.map((item) => (
                             <Link
@@ -673,7 +713,9 @@ export function Navbar() {
                   value={webKeyword}
                 />
               </form>
-              {!data?.user ? (
+              {status === "loading" ? (
+                <div className="ml-1 h-8 w-36 animate-pulse rounded-full bg-white/20" />
+              ) : !data?.user ? (
                 <div className="ml-1 flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-2 py-1 backdrop-blur-md">
                   <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20" size="sm" variant="outline">
                     <Link href="/login">登录</Link>
@@ -724,7 +766,9 @@ export function Navbar() {
                   <Link href="/admin">后台管理</Link>
                 </Button>
               ) : null}
-              {data?.user ? (
+              {status === "loading" ? (
+                <div className="h-8 w-24 animate-pulse rounded-md bg-secondary" />
+              ) : data?.user ? (
                 <div className="flex items-center gap-2">
                   {data.user.role === "USER" ? (
                     <Button asChild size="sm" variant="outline">
@@ -800,7 +844,9 @@ export function Navbar() {
                   <Link href="/admin">后台管理</Link>
                 </Button>
               ) : null}
-              {data?.user ? (
+              {status === "loading" ? (
+                <div className="h-8 w-20 animate-pulse rounded-md bg-secondary" />
+              ) : data?.user ? (
                 <div className="flex items-center gap-2">
                   {data.user.role === "USER" ? (
                     <Button asChild size="sm" variant="outline">
