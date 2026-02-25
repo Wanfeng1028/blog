@@ -1,0 +1,149 @@
+"use client";
+
+import Link from "next/link";
+import { type FormEvent, useEffect, useState, useTransition } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+type CaptchaPayload = {
+  captchaId: string;
+  svg: string;
+};
+
+function getOrCreateDeviceId() {
+  const key = "device_id";
+  const existing = localStorage.getItem(key);
+  if (existing) return existing;
+  const created = crypto.randomUUID();
+  localStorage.setItem(key, created);
+  return created;
+}
+
+export function LoginForm() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const callbackUrl = params.get("callbackUrl");
+  const { data: session, status } = useSession();
+  const [email, setEmail] = useState("");  const [password, setPassword] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captcha, setCaptcha] = useState<CaptchaPayload | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const loadCaptcha = async () => {
+    const response = await fetch("/api/auth/captcha", { cache: "no-store" });
+    const result = await response.json();
+    if (response.ok && result.ok) setCaptcha(result.data);
+  };
+
+  useEffect(() => {
+    void loadCaptcha();
+  }, []);
+
+  useEffect(() => {
+    void router.prefetch("/dashboard");
+    if (callbackUrl?.startsWith("/")) void router.prefetch(callbackUrl);
+  }, [callbackUrl, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !session?.user?.id) return;
+    const target = callbackUrl && callbackUrl !== "/login" ? callbackUrl : "/dashboard";
+    window.location.href = target;
+  }, [status, session, callbackUrl]);
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMessage("");
+    if (!captcha?.captchaId) return;
+    if (!email.trim() || !password || !captchaAnswer.trim()) {
+      setErrorMessage("请完整填写邮箱、密码和验证码。");
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await signIn("credentials", {
+        email: email.trim().toLowerCase(),
+        password,
+        captchaId: captcha.captchaId,
+        captchaAnswer: captchaAnswer.trim(),
+        deviceId: getOrCreateDeviceId(),
+        userAgent: navigator.userAgent,
+        redirect: false
+      });
+
+      if (!result || result.error) {
+        setErrorMessage("登录失败：账号、密码或验证码错误，或邮箱未激活。");
+        toast.error("登录失败");
+        await loadCaptcha();
+        return;
+      }
+
+      toast.success("登录成功");
+      const target = callbackUrl && callbackUrl !== "/login" ? callbackUrl : "/dashboard";
+      window.location.href = target;
+    });
+  };
+
+  return (
+    <form className="auth-card w-full max-w-md space-y-4 rounded-2xl p-6 text-white" onSubmit={onSubmit}>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold">登录晚风博客</h1>
+        <p className="text-sm text-slate-200/85">欢迎访问 wanfeng 的博客</p>
+      </div>
+
+      <Input
+        autoComplete="email"
+        className="border-sky-200/30 bg-white/90 text-zinc-900"
+        onChange={(event) => setEmail(event.target.value)}
+        placeholder="邮箱"
+        required
+        type="email"
+        value={email}
+      />
+      <Input
+        autoComplete="current-password"
+        className="border-sky-200/30 bg-white/90 text-zinc-900"
+        minLength={8}
+        onChange={(event) => setPassword(event.target.value)}
+        placeholder="密码"
+        required
+        type="password"
+        value={password}
+      />
+
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          {captcha ? (
+            <button className="rounded-md border border-white/30 bg-white/95 p-1" onClick={() => void loadCaptcha()} type="button">
+              <img alt="captcha" className="h-12 w-40" src={`data:image/svg+xml;utf8,${encodeURIComponent(captcha.svg)}`} />
+            </button>
+          ) : null}
+          <Input
+            className="border-sky-200/30 bg-white/90 text-zinc-900"
+            onChange={(event) => setCaptchaAnswer(event.target.value)}
+            placeholder="验证码"
+            value={captchaAnswer}
+          />
+        </div>
+        <p className="text-xs text-slate-200/80">点击验证码图片可刷新</p>
+      </div>
+
+      {errorMessage ? <p className="text-sm text-rose-300">{errorMessage}</p> : null}
+      <Button className="w-full" loading={isPending} type="submit">
+        立即登录
+      </Button>
+
+      <div className="flex items-center justify-between text-sm text-slate-100/90">
+        <Link className="hover:underline" href="/register">
+          还没有账号？去注册
+        </Link>
+        <Link className="hover:underline" href="/forgot-password">
+          忘记密码
+        </Link>
+      </div>
+    </form>
+  );
+}

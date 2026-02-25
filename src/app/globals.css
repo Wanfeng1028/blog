@@ -1,0 +1,349 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::selection {
+  background-color: #3b82f6;
+  color: #000000;
+}
+
+:root {
+  /* Zinc 50 / White Theme */
+  --color-bg: 250 250 250;
+  --color-surface: 255 255 255;
+  --color-text: 0 0 0;
+  --color-primary: 24 24 27; /* Zinc 900 (Black) */
+  --color-secondary: 244 244 245;
+  --color-muted: 0 0 0;
+  --color-border: 228 228 231;
+
+  --font-body-size: 1rem;
+  --font-body-line: 1.75rem;
+  --font-h1-size: clamp(2.1rem, 4vw, 3.2rem);
+  --font-h1-line: 1.15;
+  --font-h2-size: clamp(1.7rem, 3vw, 2.25rem);
+  --font-h2-line: 1.2;
+  --font-h3-size: 1.35rem;
+  --font-h3-line: 1.35;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+}
+
+.dark {
+  /* Zinc 950 Theme */
+  --color-bg: 9 9 11;
+  --color-surface: 24 24 27;
+  --color-text: 0 0 0;
+  --color-primary: 250 250 250; /* White primary in dark mode */
+  --color-secondary: 39 39 42;
+  --color-muted: 0 0 0;
+  --color-border: 39 39 42;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body,
+button,
+input,
+select,
+textarea,
+label,
+p,
+span,
+a,
+li,
+td,
+th,
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+small {
+  font-weight: 700 !important;
+}
+
+html,
+body {
+  height: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-y: auto;
+}
+
+body {
+  color: rgb(var(--color-text));
+  background:
+    linear-gradient(180deg, rgba(191, 219, 254, 0.2) 0%, rgba(239, 246, 255, 0.16) 56%, rgba(191, 219, 254, 0.18) 100%),
+    url("/images/home.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  font-feature-settings: "liga", "calt";
+}
+
+.container {
+  max-width: 72rem;
+}
+
+@keyframes auth-snow-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0);
+  }
+  100% {
+    transform: translate3d(18px, 110vh, 0);
+  }
+}
+
+.auth-flake {
+  position: absolute;
+  top: -10vh;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.65);
+  animation-name: auth-snow-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.auth-card {
+  border: 1px solid rgba(191, 219, 254, 0.45);
+  background:
+    linear-gradient(160deg, rgba(15, 23, 42, 0.58), rgba(30, 41, 59, 0.45)),
+    linear-gradient(120deg, rgba(59, 130, 246, 0.2), rgba(56, 189, 248, 0.12));
+  box-shadow:
+    0 24px 60px rgba(2, 6, 23, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(14px);
+}
+
+.site-page-surface {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+}
+
+.site-page-surface::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  z-index: -1;
+  background:
+    radial-gradient(1200px 340px at 50% 0%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 66%),
+    linear-gradient(180deg, rgba(191, 219, 254, 0.12) 0%, rgba(219, 234, 254, 0.09) 50%, rgba(239, 246, 255, 0.11) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  pointer-events: none;
+}
+
+.site-page-surface::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  z-index: -1;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .site-page-surface::before {
+    background:
+      radial-gradient(760px 280px at 50% 0%, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 64%),
+      linear-gradient(180deg, rgba(191, 219, 254, 0.1) 0%, rgba(219, 234, 254, 0.08) 52%, rgba(239, 246, 255, 0.1) 100%);
+  }
+}
+
+@layer components {
+  .uiverse-nav-link {
+    position: relative;
+    border-radius: 9999px;
+    padding: 0.35rem 0.72rem;
+    font-weight: 500;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease,
+      background-color 0.25s ease;
+    overflow: hidden;
+  }
+
+  .uiverse-nav-link::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -130%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.48s ease;
+    pointer-events: none;
+  }
+
+  .uiverse-nav-link:hover {
+    transform: translateY(-1px);
+  }
+
+  .uiverse-nav-link:hover::before {
+    left: 140%;
+  }
+
+  .uiverse-nav-link--home {
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.33),
+      0 8px 20px rgba(15, 23, 42, 0.18);
+    backdrop-filter: blur(8px);
+  }
+
+  .uiverse-nav-link--home:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.48);
+    background: rgba(255, 255, 255, 0.17);
+  }
+
+  .uiverse-nav-link--default {
+    color: rgb(var(--color-muted));
+    border: 1px solid rgb(var(--color-border));
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .uiverse-nav-link--default:hover {
+    color: rgb(var(--color-text));
+    border-color: rgba(99, 102, 241, 0.45);
+    box-shadow: 0 10px 22px rgba(30, 41, 59, 0.12);
+  }
+
+  .uiverse-nav-link--active {
+    border-color: rgba(56, 189, 248, 0.62);
+    background: linear-gradient(135deg, rgba(191, 219, 254, 0.4), rgba(224, 242, 254, 0.58));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      0 8px 22px rgba(14, 116, 144, 0.22);
+  }
+  /* ...existing code... */
+
+.glass-ios {
+  position: relative;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background:
+    linear-gradient(135deg, rgba(220, 235, 255, 0.55), rgba(255, 255, 255, 0.30)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.08));
+  box-shadow:
+    0 10px 28px rgba(43, 78, 132, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+/* uiverse.io — back to top button shimmer */
+.back-to-top {
+  overflow: hidden;
+}
+
+.back-to-top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.45s ease;
+  pointer-events: none;
+}
+
+.back-to-top:hover::before {
+  left: 140%;
+}
+
+/* uiverse.io — metallic shimmer logo title */
+@keyframes metallic-shine {
+  0%   { background-position: -250% center; }
+  100% { background-position: 250% center; }
+}
+
+.logo-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: linear-gradient(
+    90deg,
+    #0a0a0a  0%,
+    #2a2a2a 18%,
+    #5a5a5a 30%,
+    #b0b0b0 40%,
+    #f0f0f0 48%,
+    #ffffff 50%,
+    #f0f0f0 52%,
+    #b0b0b0 60%,
+    #5a5a5a 70%,
+    #2a2a2a 82%,
+    #0a0a0a 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: metallic-shine 3.5s linear infinite;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.75));
+  transition: filter 0.3s ease;
+}
+
+.logo-title:hover {
+  filter: drop-shadow(0 3px 16px rgba(0, 0, 0, 0.9));
+  animation-duration: 1.8s;
+}
+
+.glass-ios::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.12) 36%,
+    rgba(255, 255, 255, 0) 62%
+  );
+}
+}
