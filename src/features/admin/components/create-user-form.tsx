@@ -9,6 +9,7 @@ export function CreateUserForm() {
   const [pending, startTransition] = useTransition();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [role, setRole] = useState<"ADMIN" | "USER">("USER");
 
@@ -39,12 +40,27 @@ export function CreateUserForm() {
       <h2 className="text-lg font-semibold">创建后台用户</h2>
       <Input onChange={(event) => setName(event.target.value)} placeholder="Name" value={name} />
       <Input onChange={(event) => setEmail(event.target.value)} placeholder="Email" type="email" value={email} />
-      <Input
-        onChange={(event) => setPassword(event.target.value)}
-        placeholder="Password"
-        type="password"
-        value={password}
-      />
+      <div className="relative">
+        <Input
+          className="pr-10"
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="Password"
+          type={showPassword ? "text" : "password"}
+          value={password}
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted hover:text-text focus:outline-none"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 2 20 20" /><path d="M6.71 6.71q2.3-.71 5.29-.71 7 0 10 7a15.5 15.5 0 0 1-2.09 2.71" /><path d="M14.08 14.08a3 3 0 0 1-4.16-4.16" /><path d="M9.9 17.56a12 12 0 0 1-7.9-5.56 15.5 15.5 0 0 1 2.5-3.08" /></svg>
+          )}
+        </button>
+      </div>
       <select
         className="h-10 w-full rounded-md border border-border bg-surface px-3"
         onChange={(event) => setRole(event.target.value as "ADMIN" | "USER")}

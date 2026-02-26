@@ -55,7 +55,7 @@ export function HomeLeftSidebar({ postCount, categoryCount, tagCount }: HomeLeft
             <BookOpenText className="size-4" />
             文章
           </Link>
-          <Link className="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-white/60" href="/about#message">
+          <Link className="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-white/60" href="/message">
             <MessageCircle className="size-4" />
             说说
           </Link>
@@ -69,18 +69,16 @@ export function HomeLeftSidebar({ postCount, categoryCount, tagCount }: HomeLeft
       <section className="rounded-[22px] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.62)_0%,rgba(239,246,255,0.72)_100%)] px-5 py-6 shadow-[0_18px_38px_rgba(30,41,59,0.16)] backdrop-blur-md">
         <div className="flex items-center justify-between text-lg text-fuchsia-300">
           <button
-            className={`border-b pb-1 transition ${
-              activeTab === "profile" ? "border-fuchsia-300 text-fuchsia-300" : "border-transparent text-fuchsia-200/70"
-            }`}
+            className={`border-b pb-1 transition ${activeTab === "profile" ? "border-fuchsia-300 text-fuchsia-300" : "border-transparent text-fuchsia-200/70"
+              }`}
             onClick={() => setActiveTab("profile")}
             type="button"
           >
             个人简介
           </button>
           <button
-            className={`border-b pb-1 transition ${
-              activeTab === "calendar" ? "border-fuchsia-300 text-fuchsia-300" : "border-transparent text-fuchsia-200/70"
-            }`}
+            className={`border-b pb-1 transition ${activeTab === "calendar" ? "border-fuchsia-300 text-fuchsia-300" : "border-transparent text-fuchsia-200/70"
+              }`}
             onClick={() => setActiveTab("calendar")}
             type="button"
           >
@@ -167,9 +165,8 @@ export function HomeLeftSidebar({ postCount, categoryCount, tagCount }: HomeLeft
             <div className="mt-2 grid grid-cols-7 gap-y-2 text-center">
               {monthGrid.map((day, idx) => (
                 <span
-                  className={`mx-auto flex size-8 items-center justify-center rounded-full text-sm ${
-                    day === today ? "bg-cyan-500 font-semibold text-white" : day ? "text-zinc-700" : "text-transparent"
-                  }`}
+                  className={`mx-auto flex size-8 items-center justify-center rounded-full text-sm ${day === today ? "bg-cyan-500 font-semibold text-white" : day ? "text-zinc-700" : "text-transparent"
+                    }`}
                   key={`${year}-${monthIndex}-${idx}`}
                 >
                   {day ?? "0"}

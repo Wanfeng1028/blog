@@ -29,14 +29,16 @@ export async function MarkdownRenderer({ content }: { content: string }) {
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, { behavior: "append" })
-    .use(rehypePrettyCode, prettyCodeOptions)
+    .use(rehypePrettyCode as any, prettyCodeOptions)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(content);
 
   return (
-    <article
-      className="prose prose-slate max-w-none dark:prose-invert"
-      dangerouslySetInnerHTML={{ __html: String(file) }}
-    />
+    <div className="rounded-2xl border border-white/45 bg-white/65 p-6 shadow-lg backdrop-blur-md">
+      <article
+        className="prose prose-slate max-w-none dark:prose-invert"
+        dangerouslySetInnerHTML={{ __html: String(file) }}
+      />
+    </div>
   );
 }

@@ -136,14 +136,18 @@ model Comment {
   id        String        @id @default(cuid())
   postId    String
   userId    String
+  parentId  String?
   content   String
   status    CommentStatus @default(VISIBLE)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]     @relation("CommentReplies")
 
   @@index([postId, status, createdAt(sort: Desc)])
+  @@index([parentId])
 }
 
 model auth_devices {

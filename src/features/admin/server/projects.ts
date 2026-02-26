@@ -17,7 +17,7 @@ async function createUniqueProjectSlug(title: string, currentId?: string) {
 
   if (!projectClient) return candidate;
 
-  for (;;) {
+  for (; ;) {
     const conflict = await projectClient.findFirst({
       where: {
         slug: candidate,
@@ -62,7 +62,7 @@ export async function createProject(input: unknown) {
   if (!projectClient) throw new Error("Project table is unavailable");
 
   const data = parsed.data;
-  const slug = await createUniqueProjectSlug(data.slug?.trim() || data.title);
+  const slug = await createUniqueProjectSlug(data.slug?.trim() || data.title || "");
 
   // Create without `content` so it works even if Prisma client hasn't been
   // regenerated yet (content column exists in DB but not in stale client types).
@@ -111,7 +111,7 @@ export async function updateProject(input: unknown) {
     data.slug && data.slug.trim()
       ? await createUniqueProjectSlug(data.slug.trim(), data.id)
       : existing.title !== data.title
-        ? await createUniqueProjectSlug(data.title, data.id)
+        ? await createUniqueProjectSlug(data.title || "", data.id)
         : existing.slug;
 
   // Update without `content` first (stale client safe).

@@ -54,24 +54,26 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-4 rounded-xl border border-border bg-surface p-6 shadow-soft">
-      <h1 className="text-2xl font-semibold">忘记密码</h1>
-      <Input onChange={(event) => setEmail(event.target.value)} placeholder="邮箱" type="email" value={email} />
+    <div className="auth-card w-full max-w-md space-y-4 rounded-2xl p-6 text-white">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold">忘记密码</h1>
+      </div>
+      <Input className="border-sky-200/30 bg-white/90 text-zinc-900" onChange={(event) => setEmail(event.target.value)} placeholder="邮箱" type="email" value={email} />
       <div className="flex items-center gap-2">
         {captcha ? (
-          <button className="rounded-md border border-border bg-white p-1" onClick={() => void loadCaptcha()} type="button">
+          <button className="rounded-md border border-white/30 bg-white/95 p-1" onClick={() => void loadCaptcha()} type="button">
             <img alt="captcha" className="h-12 w-40" src={`data:image/svg+xml;utf8,${encodeURIComponent(captcha.svg)}`} />
           </button>
         ) : null}
-        <Input onChange={(event) => setCaptchaAnswer(event.target.value)} placeholder="验证码" value={captchaAnswer} />
+        <Input className="border-sky-200/30 bg-white/90 text-zinc-900" onChange={(event) => setCaptchaAnswer(event.target.value)} placeholder="验证码" value={captchaAnswer} />
       </div>
       {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
       <Button className="w-full" loading={isPending} onClick={submit} type="button">
         发送重置验证码
       </Button>
-      <p className="text-center text-sm text-muted">
+      <p className="text-center text-sm text-slate-100/90">
         已有验证码？
-        <Link className="ml-1 text-primary hover:underline" href="/reset-password">
+        <Link className="ml-1 hover:underline" href="/reset-password">
           去重置密码
         </Link>
       </p>

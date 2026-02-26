@@ -1,26 +1,25 @@
 import type { Metadata } from "next";
-import { DonationSection } from "@/features/blog/components/donation-section";
-import { FriendLinksSection } from "@/features/blog/components/friend-links-section";
-import { MessageBoardSection } from "@/features/blog/components/message-board-section";
+import { unstable_cache } from "next/cache";
 import { getSiteSettings } from "@/lib/site-settings";
-import { listMessages } from "@/lib/message-board";
-import { listFriendLinks } from "@/lib/friend-links";
-import { listDonations } from "@/lib/donations";
 
 export const metadata: Metadata = {
   title: "关于我",
-  description: "个人介绍、友链与留言板"
+  description: "个人介绍"
 };
 
-export const revalidate = 60;
+export const revalidate = 120;
+
+const getCachedAboutData = unstable_cache(
+  async () => {
+    const settings = await getSiteSettings();
+    return { settings };
+  },
+  ["about-page-data"],
+  { revalidate: 120, tags: ["about-page"] }
+);
 
 export default async function AboutPage() {
-  const [settings, donations, friendLinks, messages] = await Promise.all([
-    getSiteSettings(),
-    listDonations({ status: "CONFIRMED", limit: 30 }),
-    listFriendLinks({ status: "APPROVED", limit: 60 }),
-    listMessages({ status: "VISIBLE", limit: 40 })
-  ]);
+  const { settings } = await getCachedAboutData();
   const aboutText = settings.aboutContent?.trim();
 
   return (
@@ -31,42 +30,6 @@ export default async function AboutPage() {
           {aboutText || "这里是关于我页面占位内容。你可以在后台 -> 站点设置中编辑并实时生效。"}
         </p>
       </section>
-
-      <DonationSection
-        initialItems={donations.map((item) => ({
-          id: item.id,
-          name: item.name,
-          email: item.email,
-          amount: item.amount,
-          message: item.message,
-          paymentMethod: item.paymentMethod,
-          status: item.status,
-          createdAt: item.createdAt.toISOString()
-        }))}
-      />
-      <FriendLinksSection
-        initialLinks={friendLinks.map((item) => ({
-          id: item.id,
-          avatarUrl: item.avatarUrl,
-          name: item.name,
-          email: item.email,
-          siteName: item.siteName,
-          siteUrl: item.siteUrl,
-          description: item.description,
-          status: item.status,
-          createdAt: item.createdAt.toISOString()
-        }))}
-      />
-      <MessageBoardSection
-        initialMessages={messages.map((item) => ({
-          id: item.id,
-          name: item.name,
-          email: item.email,
-          content: item.content,
-          status: item.status,
-          createdAt: item.createdAt.toISOString()
-        }))}
-      />
     </div>
   );
 }

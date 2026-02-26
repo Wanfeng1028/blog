@@ -1,18 +1,28 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
+import { unstable_cache } from "next/cache";
 import { getPosts, getTagsWithCount } from "@/features/blog/server/queries";
 import { PostCard } from "@/features/blog/components/post-card";
 import { Badge } from "@/components/ui/badge";
 import { HeroTyping } from "@/components/hero-typing";
 import { HomeLeftSidebar } from "@/components/home-left-sidebar";
 
-export const revalidate = 60;
+export const revalidate = 120;
+
+const getCachedHomeData = unstable_cache(
+  async () => {
+    const [postsResult, tags] = await Promise.all([
+      getPosts({ pageSize: 12 }),
+      getTagsWithCount()
+    ]);
+    return { posts: postsResult.items, total: postsResult.total, tags };
+  },
+  ["home-page-data"],
+  { revalidate: 120, tags: ["home-page"] }
+);
 
 export default async function HomePage() {
-  const [{ items: posts, total: postCount }, tags] = await Promise.all([
-    getPosts({ pageSize: 12 }),
-    getTagsWithCount()
-  ]);
+  const { posts, total: postCount, tags } = await getCachedHomeData();
 
   const categoryCount = tags.length;
 

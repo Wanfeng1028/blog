@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ["antd", "@ant-design/icons", "lucide-react"]
+    optimizePackageImports: ["antd", "@ant-design/icons", "lucide-react"],
+    // Cache visited pages so back/forward navigation is near-instant
+    staleTimes: {
+      dynamic: 300,  // 5 minutes for dynamic pages (admin/dashboard)
+      static: 180     // 3 minutes for static pages
+    }
   },
   images: {
     remotePatterns: [

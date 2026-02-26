@@ -9,9 +9,13 @@ import type { MenuProps } from "antd";
 import {
   AppstoreOutlined,
   BarsOutlined,
+  CustomerServiceOutlined,
   FileTextOutlined,
+  FundProjectionScreenOutlined,
   LogoutOutlined,
+  MessageOutlined,
   PictureOutlined,
+  SafetyOutlined,
   SettingOutlined,
   TagsOutlined,
   UserOutlined
@@ -53,7 +57,29 @@ const menuItems: MenuProps["items"] = [
   {
     key: "/admin/settings",
     icon: <SettingOutlined />,
-    label: <Link href="/admin/settings">站点设置</Link>
+    label: "站点设置",
+    children: [
+      {
+        key: "/admin/settings",
+        icon: <CustomerServiceOutlined />,
+        label: <Link href="/admin/settings">站点配置</Link>
+      },
+      {
+        key: "/admin/settings/projects",
+        icon: <FundProjectionScreenOutlined />,
+        label: <Link href="/admin/settings/projects">项目管理</Link>
+      },
+      {
+        key: "/admin/settings/interactions",
+        icon: <MessageOutlined />,
+        label: <Link href="/admin/settings/interactions">互动管理</Link>
+      },
+      {
+        key: "/admin/settings/users",
+        icon: <SafetyOutlined />,
+        label: <Link href="/admin/settings/users">用户与安全</Link>
+      }
+    ]
   }
 ];
 
@@ -62,6 +88,9 @@ function resolveSelectedKey(pathname: string): string {
   if (pathname.startsWith("/admin/categories")) return "/admin/categories";
   if (pathname.startsWith("/admin/tags")) return "/admin/tags";
   if (pathname.startsWith("/admin/assets")) return "/admin/assets";
+  if (pathname === "/admin/settings/projects") return "/admin/settings/projects";
+  if (pathname === "/admin/settings/interactions") return "/admin/settings/interactions";
+  if (pathname === "/admin/settings/users") return "/admin/settings/users";
   if (pathname.startsWith("/admin/settings")) return "/admin/settings";
   return "/admin";
 }
@@ -73,7 +102,7 @@ export function AdminShell({ children }: AdminShellProps) {
   const selectedKey = resolveSelectedKey(pathname);
 
   useEffect(() => {
-    const routes = ["/admin", "/admin/posts", "/admin/categories", "/admin/tags", "/admin/assets", "/admin/settings"];
+    const routes = ["/admin", "/admin/posts", "/admin/categories", "/admin/tags", "/admin/assets", "/admin/settings", "/admin/settings/projects", "/admin/settings/interactions", "/admin/settings/users"];
     for (const route of routes) {
       if (route === pathname) continue;
       void router.prefetch(route);
@@ -147,7 +176,7 @@ export function AdminShell({ children }: AdminShellProps) {
               <Typography.Text className="!text-cyan-100">内容、互动、站点配置统一管理</Typography.Text>
             </div>
           </div>
-          <Menu mode="inline" selectedKeys={[selectedKey]} items={menuItems} />
+          <Menu mode="inline" selectedKeys={[selectedKey]} defaultOpenKeys={["/admin/settings"]} items={menuItems} />
         </Sider>
 
         <Layout>

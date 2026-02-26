@@ -31,7 +31,7 @@ export function GlobalSidebar() {
       .then((res) => {
         if (res.ok && res.data) setStats(res.data);
       })
-      .catch(() => {/* 静默失败 */});
+      .catch(() => {/* 静默失败 */ });
   }, []);
 
   return (
@@ -80,7 +80,7 @@ export function GlobalSidebar() {
               <BookOpenText className="size-3.5 shrink-0" />
               文章
             </Link>
-            <Link className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 transition hover:bg-white/60" href="/about#message">
+            <Link className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 transition hover:bg-white/60" href="/message">
               <MessageCircle className="size-3.5 shrink-0" />
               留言板
             </Link>

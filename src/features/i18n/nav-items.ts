@@ -60,7 +60,7 @@ export const navItemDefs: NavItemDef[] = [
     ]
   },
   {
-    href: "/about#friends",
+    href: "/friends",
     labelZh: "友链",
     labelEn: "Friends",
     icon: UsersRound,
@@ -68,16 +68,16 @@ export const navItemDefs: NavItemDef[] = [
       {
         label: "友链",
         children: [
-          { href: "/about#support", label: "打赏 / 支持我" },
-          { href: "/about#friends", label: "朋友的网站链接" },
-          { href: "/about#friend-apply", label: "友链申请" }
+          { href: "/friends", label: "朋友的网站链接" },
+          { href: "/friends/apply", label: "友链申请" },
+          { href: "/friends/donate", label: "打赏 / 支持我" }
         ]
       }
     ]
   },
   { href: "/about", labelZh: "关于我", labelEn: "About", icon: UserRound },
   {
-    href: "/about#message",
+    href: "/message",
     labelZh: "留言",
     labelEn: "Message",
     icon: MessageSquare,
@@ -85,8 +85,8 @@ export const navItemDefs: NavItemDef[] = [
       {
         label: "留言",
         children: [
-          { href: "/about#message-list", label: "留言列表" },
-          { href: "/about#message", label: "发表留言" }
+          { href: "/message#message-list", label: "留言列表" },
+          { href: "/message#message", label: "发表留言" }
         ]
       }
     ]
