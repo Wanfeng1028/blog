@@ -19,6 +19,7 @@ import { getSiteSettings } from "@/lib/site-settings";
 
 const createCommentSchema = z.object({
   postId: z.string().cuid(),
+  parentId: z.string().cuid().optional().nullable(),
   content: z.string().min(2).max(1000)
 });
 
@@ -26,7 +27,9 @@ const createMessageSchema = z.object({
   mode: z.literal("message"),
   name: z.string().trim().min(1).max(40),
   email: z.string().email().optional().or(z.literal("")),
-  content: z.string().min(2).max(1200)
+  avatarUrl: z.string().url().optional().or(z.literal("")),
+  content: z.string().min(2).max(1200),
+  parentId: z.string().optional().nullable()
 });
 
 const friendLinkApplySchema = z.object({
@@ -106,19 +109,40 @@ export async function GET(request: NextRequest) {
     const postId = request.nextUrl.searchParams.get("postId");
     if (!postId) return apiError("postId is required", 400);
 
+    // Return comments with nested replies (2-level: top-level + replies)
     const comments = await db.comment.findMany({
-      where: { postId, status: "VISIBLE" },
+      where: { postId, status: "VISIBLE", parentId: null },
       select: {
         id: true,
         content: true,
         status: true,
+        parentId: true,
         createdAt: true,
         user: {
           select: {
             id: true,
             name: true,
-            image: true
+            image: true,
+            email: true
           }
+        },
+        replies: {
+          where: { status: "VISIBLE" },
+          select: {
+            id: true,
+            content: true,
+            parentId: true,
+            createdAt: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                email: true
+              }
+            }
+          },
+          orderBy: { createdAt: "asc" }
         }
       },
       orderBy: { createdAt: "desc" }
@@ -218,12 +242,19 @@ export async function POST(request: NextRequest) {
       const cleanContent = sanitizeHtml(payload.content, { allowedTags: [], allowedAttributes: {} }).trim();
       if (!cleanContent) return apiError("Message cannot be empty", 400);
 
+      // Use session user info if logged in
+      const userName = session?.user?.name ?? payload.name;
+      const userEmail = session?.user?.email ?? (payload.email ? payload.email.trim().toLowerCase() : null);
+      const userAvatar = (session?.user as any)?.image ?? (payload.avatarUrl || null);
+
       await createMessage({
         id: randomUUID(),
-        name: payload.name,
-        email: payload.email ? payload.email.trim().toLowerCase() : null,
+        name: userName,
+        email: userEmail,
+        avatarUrl: userAvatar,
         content: cleanContent,
         status: "VISIBLE",
+        parentId: payload.parentId ?? null,
         ip,
         userId: session?.user?.id ?? null
       });
@@ -254,6 +285,7 @@ export async function POST(request: NextRequest) {
       data: {
         postId: payload.postId,
         userId: session.user.id,
+        parentId: payload.parentId ?? null,
         content: cleanContent,
         status: "VISIBLE"
       }

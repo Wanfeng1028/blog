@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { getArticleCategoriesWithCount, getPosts, getTagsWithCount } from "@/features/blog/server/queries";
 import { PostCard } from "@/features/blog/components/post-card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,7 @@ type PageProps = {
   }>;
 };
 
-export const revalidate = 60;
+export const revalidate = 120;
 
 export const metadata: Metadata = {
   title: "博客",
@@ -28,6 +29,19 @@ export const metadata: Metadata = {
   }
 };
 
+const getCachedBlogData = unstable_cache(
+  async (query: string, tag: string, category: string, page: number) => {
+    const [postsResult, tags, categories] = await Promise.all([
+      getPosts({ query, tag, category, page, pageSize: 9 }),
+      getTagsWithCount(),
+      getArticleCategoriesWithCount()
+    ]);
+    return { postsResult, tags, categories };
+  },
+  ["blog-page-data"],
+  { revalidate: 120, tags: ["blog-page"] }
+);
+
 export default async function BlogPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const query = params.query?.trim() ?? "";
@@ -35,17 +49,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
   const category = params.category?.trim() ?? "";
   const page = Number(params.page ?? "1");
 
-  const [{ items, totalPages }, tags, categories] = await Promise.all([
-    getPosts({
-      query,
-      tag,
-      category,
-      page,
-      pageSize: 9
-    }),
-    getTagsWithCount(),
-    getArticleCategoriesWithCount()
-  ]);
+  const { postsResult: { items, totalPages }, tags, categories } = await getCachedBlogData(query, tag, category, page);
 
   return (
     <div className="space-y-8">

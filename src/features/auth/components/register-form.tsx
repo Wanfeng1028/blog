@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -19,12 +19,14 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [captchaAnswer, setCaptchaAnswer] = useState("");
   const [captcha, setCaptcha] = useState<CaptchaPayload | null>(null);
   const [verifyCode, setVerifyCode] = useState("");
   const [needVerify, setNeedVerify] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadCaptcha = async () => {
     const response = await fetch("/api/auth/captcha", { cache: "no-store" });
@@ -36,7 +38,7 @@ export function RegisterForm() {
     void loadCaptcha();
   }, []);
 
-  const submitRegister = () => {
+  const submitRegister = async () => {
     setErrorMessage("");
     if (!captcha?.captchaId) return;
 
@@ -53,7 +55,8 @@ export function RegisterForm() {
       return;
     }
 
-    startTransition(async () => {
+    setIsLoading(true);
+    try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,6 +76,7 @@ export function RegisterForm() {
         setErrorMessage(message);
         toast.error(message);
         await loadCaptcha();
+        setIsLoading(false);
         return;
       }
 
@@ -82,11 +86,16 @@ export function RegisterForm() {
       if (result.data?.debugCode) {
         toast.message(`开发环境验证码：${result.data.debugCode}`);
       }
-    });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const submitVerify = () => {
-    startTransition(async () => {
+  const submitVerify = async () => {
+    setIsLoading(true);
+    try {
       const response = await fetch("/api/auth/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,6 +107,7 @@ export function RegisterForm() {
       const result = await response.json();
       if (!response.ok || !result.ok) {
         toast.error(result.message ?? "激活失败");
+        setIsLoading(false);
         return;
       }
 
@@ -114,11 +124,14 @@ export function RegisterForm() {
       if (!login || login.error) {
         toast.success("邮箱已激活，请登录");
         router.push("/login");
-        return;
+        return; // Next.js loading kicks in
       }
       toast.success("注册并登录成功");
       router.push("/blog");
-    });
+    } catch (err) {
+      console.error(err);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -143,20 +156,48 @@ export function RegisterForm() {
             type="email"
             value={email}
           />
-          <Input
-            className="border-sky-200/30 bg-white/90 text-zinc-900"
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="密码（至少 8 位）"
-            type="password"
-            value={password}
-          />
-          <Input
-            className="border-sky-200/30 bg-white/90 text-zinc-900"
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            placeholder="确认密码"
-            type="password"
-            value={confirmPassword}
-          />
+          <div className="relative">
+            <Input
+              className="border-sky-200/30 bg-white/90 pr-10 text-zinc-900"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="密码（至少 8 位）"
+              type={showPassword ? "text" : "password"}
+              value={password}
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 2 20 20" /><path d="M6.71 6.71q2.3-.71 5.29-.71 7 0 10 7a15.5 15.5 0 0 1-2.09 2.71" /><path d="M14.08 14.08a3 3 0 0 1-4.16-4.16" /><path d="M9.9 17.56a12 12 0 0 1-7.9-5.56 15.5 15.5 0 0 1 2.5-3.08" /></svg>
+              )}
+            </button>
+          </div>
+          <div className="relative">
+            <Input
+              className="border-sky-200/30 bg-white/90 pr-10 text-zinc-900"
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder="确认密码"
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 2 20 20" /><path d="M6.71 6.71q2.3-.71 5.29-.71 7 0 10 7a15.5 15.5 0 0 1-2.09 2.71" /><path d="M14.08 14.08a3 3 0 0 1-4.16-4.16" /><path d="M9.9 17.56a12 12 0 0 1-7.9-5.56 15.5 15.5 0 0 1 2.5-3.08" /></svg>
+              )}
+            </button>
+          </div>
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -176,7 +217,7 @@ export function RegisterForm() {
           </div>
 
           {errorMessage ? <p className="text-sm text-rose-300">{errorMessage}</p> : null}
-          <Button className="w-full" loading={isPending} onClick={submitRegister} type="button">
+          <Button className="w-full" loading={isLoading} onClick={submitRegister} type="button">
             注册并发送验证码
           </Button>
         </>
@@ -191,7 +232,7 @@ export function RegisterForm() {
             placeholder="邮箱验证码"
             value={verifyCode}
           />
-          <Button className="w-full" loading={isPending} onClick={submitVerify} type="button">
+          <Button className="w-full" loading={isLoading} onClick={submitVerify} type="button">
             激活并登录
           </Button>
         </>

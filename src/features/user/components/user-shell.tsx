@@ -12,10 +12,10 @@ import { Avatar, Button, Layout, Menu, Space } from "antd";
 const { Header, Sider, Content } = Layout;
 
 const items: MenuProps["items"] = [
-  { key: "/dashboard", icon: <StarOutlined />, label: "用户概览" },
-  { key: "/dashboard/profile", icon: <UserOutlined />, label: "个人资料" },
-  { key: "/dashboard/interactions", icon: <FileTextOutlined />, label: "互动记录" },
-  { key: "/dashboard/security", icon: <LockOutlined />, label: "账号安全" }
+  { key: "/dashboard", icon: <StarOutlined />, label: <Link href="/dashboard">用户概览</Link> },
+  { key: "/dashboard/profile", icon: <UserOutlined />, label: <Link href="/dashboard/profile">个人资料</Link> },
+  { key: "/dashboard/interactions", icon: <FileTextOutlined />, label: <Link href="/dashboard/interactions">互动记录</Link> },
+  { key: "/dashboard/security", icon: <LockOutlined />, label: <Link href="/dashboard/security">账号安全</Link> }
 ];
 
 function resolveSelectedKey(pathname: string) {
@@ -44,8 +44,7 @@ export function UserShell({ children }: { children: ReactNode }) {
   const handleSignOut = () => {
     startSignOutTransition(async () => {
       await signOut({ redirect: false });
-      router.replace("/login");
-      router.refresh();
+      window.location.href = "/login";
     });
   };
 
@@ -117,11 +116,6 @@ export function UserShell({ children }: { children: ReactNode }) {
             mode="inline"
             selectedKeys={[selectedKey]}
             items={items}
-            onClick={({ key }) => {
-              const href = String(key);
-              void router.prefetch(href);
-              router.push(href);
-            }}
           />
         </Sider>
 

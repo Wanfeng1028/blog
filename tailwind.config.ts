@@ -13,6 +13,15 @@ const config: Config = {
         // font-mono → JetBrains Mono
         mono: ["var(--font-mono)", "ui-monospace", "Menlo", "monospace"]
       },
+      animation: {
+        shimmer: "shimmer 2.5s linear infinite"
+      },
+      keyframes: {
+        shimmer: {
+          from: { backgroundPosition: "0 0" },
+          to: { backgroundPosition: "-200% 0" }
+        }
+      },
       colors: {
         bg: "rgb(var(--color-bg) / <alpha-value>)",
         surface: "rgb(var(--color-surface) / <alpha-value>)",

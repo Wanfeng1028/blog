@@ -84,7 +84,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
       <article className="space-y-6">
         <PostViewTracker postId={post.id} />
 
-        <header className="space-y-3">
+        <header className="space-y-3 rounded-2xl border border-white/45 bg-white/65 p-6 shadow-lg backdrop-blur-md">
           <div className="flex flex-wrap gap-2">
             {post.tags.map((tag) => (
               <Badge key={tag}>{tag}</Badge>
@@ -110,7 +110,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
         <MarkdownRenderer content={post.content} />
 
-        <nav className="grid gap-2 rounded-lg border border-border bg-surface p-4 md:grid-cols-2">
+        <nav className="grid gap-2 rounded-lg border border-white/40 bg-white/50 p-4 backdrop-blur-sm md:grid-cols-2">
           <div>
             <p className="text-xs text-muted">上一篇</p>
             {adjacent.previous ? (
@@ -136,7 +136,11 @@ export default async function BlogDetailPage({ params }: PageProps) {
         <CommentSection
           initialComments={comments.map((c) => ({
             ...c,
-            createdAt: c.createdAt.toISOString()
+            createdAt: c.createdAt.toISOString(),
+            replies: (c.replies ?? []).map((r) => ({
+              ...r,
+              createdAt: r.createdAt.toISOString()
+            }))
           }))}
           postId={post.id}
         />

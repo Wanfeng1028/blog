@@ -41,12 +41,12 @@ async function getPostsInternal(params: NormalizedPostListQuery) {
     ...(params.category ? { category: { slug: params.category } } : {}),
     ...(params.query
       ? {
-          OR: [
-            { title: { contains: params.query, mode: "insensitive" } },
-            { summary: { contains: params.query, mode: "insensitive" } },
-            { content: { contains: params.query, mode: "insensitive" } }
-          ]
-        }
+        OR: [
+          { title: { contains: params.query, mode: "insensitive" } },
+          { summary: { contains: params.query, mode: "insensitive" } },
+          { content: { contains: params.query, mode: "insensitive" } }
+        ]
+      }
       : {})
   };
 
@@ -244,23 +244,47 @@ export async function getArticleCategoriesWithCount(): Promise<ArticleCategoryWi
   return getArticleCategoriesWithCountCached();
 }
 
-export async function getCommentsByPostSlug(slug: string): Promise<CommentView[]> {
+export async function getCommentsByPostSlug(slug: string) {
   return db.comment.findMany({
     where: {
       post: { slug },
-      status: CommentStatus.VISIBLE
+      status: CommentStatus.VISIBLE,
+      // @ts-ignore — parentId exists in DB, remove after `npx prisma generate`
+      parentId: null
     },
     select: {
       id: true,
       content: true,
       status: true,
+      // @ts-ignore — parentId exists in DB, remove after `npx prisma generate`
+      parentId: true,
       createdAt: true,
       user: {
         select: {
           id: true,
           name: true,
-          image: true
+          image: true,
+          email: true
         }
+      },
+      // @ts-ignore — replies relation exists in DB, remove after `npx prisma generate`
+      replies: {
+        where: { status: CommentStatus.VISIBLE },
+        select: {
+          id: true,
+          content: true,
+          parentId: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true
+            }
+          }
+        },
+        orderBy: { createdAt: "asc" }
       }
     },
     orderBy: { createdAt: "desc" }

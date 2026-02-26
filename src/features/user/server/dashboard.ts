@@ -168,28 +168,24 @@ export async function getUserOverview(userId: string) {
 }
 
 async function getUserFavoritesUncached(userId: string) {
-  return safeQueryRaw<
+  const rows = await safeQueryRaw<
     Array<{
       id: string;
       createdAt: Date;
-      post: {
-        id: string;
-        title: string;
-        slug: string;
-        summary: string;
-      };
+      postId: string;
+      postTitle: string;
+      postSlug: string;
+      postSummary: string;
     }>
   >(
     Prisma.sql`
       SELECT
         f.id,
         f."createdAt" AS "createdAt",
-        json_build_object(
-          'id', p.id,
-          'title', p.title,
-          'slug', p.slug,
-          'summary', p.summary
-        ) AS post
+        p.id AS "postId",
+        p.title AS "postTitle",
+        p.slug AS "postSlug",
+        p.summary AS "postSummary"
       FROM "PostFavorite" f
       JOIN "Post" p ON p.id = f."postId"
       WHERE f."userId" = ${userId}
@@ -197,6 +193,17 @@ async function getUserFavoritesUncached(userId: string) {
     `,
     []
   );
+
+  return rows.map((r) => ({
+    id: r.id,
+    createdAt: r.createdAt,
+    post: {
+      id: r.postId,
+      title: r.postTitle,
+      slug: r.postSlug,
+      summary: r.postSummary
+    }
+  }));
 }
 
 const getUserFavoritesCached = unstable_cache(getUserFavoritesUncached, ["dashboard-user-favorites"], {
@@ -209,28 +216,24 @@ export async function getUserFavorites(userId: string) {
 }
 
 async function getUserLikesUncached(userId: string) {
-  return safeQueryRaw<
+  const rows = await safeQueryRaw<
     Array<{
       id: string;
       createdAt: Date;
-      post: {
-        id: string;
-        title: string;
-        slug: string;
-        summary: string;
-      };
+      postId: string;
+      postTitle: string;
+      postSlug: string;
+      postSummary: string;
     }>
   >(
     Prisma.sql`
       SELECT
         l.id,
         l."createdAt" AS "createdAt",
-        json_build_object(
-          'id', p.id,
-          'title', p.title,
-          'slug', p.slug,
-          'summary', p.summary
-        ) AS post
+        p.id AS "postId",
+        p.title AS "postTitle",
+        p.slug AS "postSlug",
+        p.summary AS "postSummary"
       FROM "PostLike" l
       JOIN "Post" p ON p.id = l."postId"
       WHERE l."userId" = ${userId}
@@ -238,6 +241,17 @@ async function getUserLikesUncached(userId: string) {
     `,
     []
   );
+
+  return rows.map((r) => ({
+    id: r.id,
+    createdAt: r.createdAt,
+    post: {
+      id: r.postId,
+      title: r.postTitle,
+      slug: r.postSlug,
+      summary: r.postSummary
+    }
+  }));
 }
 
 const getUserLikesCached = unstable_cache(getUserLikesUncached, ["dashboard-user-likes"], {

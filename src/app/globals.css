@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 ::selection {
-  background-color: rgba(13, 148, 136, 0.22); /* teal-600/22% */
+  background-color: rgba(14, 165, 233, 0.25);
+  /* sky-500/25% */
   color: inherit;
 }
 
@@ -11,14 +12,18 @@
   /* Zinc 50 / White Theme */
   --color-bg: 250 250 250;
   --color-surface: 255 255 255;
-  --color-text: 31 41 55;       /* #1F2937 深灰，不刺眼的阅读色 */
-  --color-primary: 24 24 27;   /* Zinc 900 */
+  --color-text: 31 41 55;
+  /* #1F2937 深灰，不刺眼的阅读色 */
+  --color-primary: 24 24 27;
+  /* Zinc 900 */
   --color-secondary: 244 244 245;
-  --color-muted: 107 114 128;   /* #6B7280 Gray-500，辅助文字色 */
+  --color-muted: 107 114 128;
+  /* #6B7280 Gray-500，辅助文字色 */
   --color-border: 228 228 231;
 
   --font-body-size: 1rem;
-  --font-body-line: 1.875;      /* 无单位比例，提升长文阅读舘适度 */
+  --font-body-line: 1.875;
+  /* 无单位比例，提升长文阅读舘适度 */
   --font-h1-size: clamp(2.1rem, 4vw, 3.2rem);
   --font-h1-line: 1.15;
   --font-h2-size: clamp(1.7rem, 3vw, 2.25rem);
@@ -48,10 +53,12 @@
   /* Zinc 950 Theme */
   --color-bg: 9 9 11;
   --color-surface: 24 24 27;
-  --color-text: 241 245 249;    /* slate-100，暗色背景下的柔和白 */
+  --color-text: 241 245 249;
+  /* slate-100，暗色背景下的柔和白 */
   --color-primary: 250 250 250;
   --color-secondary: 39 39 42;
-  --color-muted: 148 163 184;   /* slate-400 */
+  --color-muted: 148 163 184;
+  /* slate-400 */
   --color-border: 39 39 42;
 }
 
@@ -60,17 +67,25 @@
 }
 
 /* 标题导航: 出色字重 */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
 }
 
 /* UI 控件: 半糟字重，更清晰易读 */
-button, label {
+button,
+label {
   font-weight: 600;
 }
 
 /* 表单控件: 正常字重，不显笨重 */
-input, select, textarea {
+input,
+select,
+textarea {
   font-weight: 400;
 }
 
@@ -102,7 +117,11 @@ body {
 }
 
 /* 代码字体: JetBrains Mono */
-code, pre, kbd, samp, tt {
+code,
+pre,
+kbd,
+samp,
+tt {
   font-family: var(--font-mono), "JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 
@@ -114,6 +133,7 @@ code, pre, kbd, samp, tt {
   0% {
     transform: translate3d(0, -10vh, 0);
   }
+
   100% {
     transform: translate3d(18px, 110vh, 0);
   }
@@ -257,96 +277,98 @@ code, pre, kbd, samp, tt {
       inset 0 1px 0 rgba(255, 255, 255, 0.5),
       0 8px 22px rgba(14, 116, 144, 0.22);
   }
+
   /* ...existing code... */
 
-.glass-ios {
-  position: relative;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background:
-    linear-gradient(135deg, rgba(220, 235, 255, 0.55), rgba(255, 255, 255, 0.30)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.08));
-  box-shadow:
-    0 10px 28px rgba(43, 78, 132, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.60),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.20);
-  backdrop-filter: blur(18px) saturate(150%);
-  -webkit-backdrop-filter: blur(18px) saturate(150%);
-}
+  .glass-ios {
+    position: relative;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background:
+      linear-gradient(135deg, rgba(220, 235, 255, 0.55), rgba(255, 255, 255, 0.30)),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.08));
+    box-shadow:
+      0 10px 28px rgba(43, 78, 132, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.60),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.20);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+  }
 
-/* uiverse.io — back to top button shimmer */
-.back-to-top {
-  overflow: hidden;
-}
+  /* uiverse.io — back to top button shimmer */
+  .back-to-top {
+    overflow: hidden;
+  }
 
-.back-to-top::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -130%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.45s ease;
-  pointer-events: none;
-}
+  .back-to-top::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -130%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.45s ease;
+    pointer-events: none;
+  }
 
-.back-to-top:hover::before {
-  left: 140%;
-}
+  .back-to-top:hover::before {
+    left: 140%;
+  }
 
-/* uiverse.io — metallic shimmer logo title */
-@keyframes metallic-shine {
-  0%   { background-position: -250% center; }
-  100% { background-position: 250% center; }
-}
+  /* uiverse.io — metallic shimmer logo title */
+  @keyframes metallic-shine {
+    0% {
+      background-position: -250% center;
+    }
 
-.logo-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  background: linear-gradient(
-    90deg,
-    #0a0a0a  0%,
-    #2a2a2a 18%,
-    #5a5a5a 30%,
-    #b0b0b0 40%,
-    #f0f0f0 48%,
-    #ffffff 50%,
-    #f0f0f0 52%,
-    #b0b0b0 60%,
-    #5a5a5a 70%,
-    #2a2a2a 82%,
-    #0a0a0a 100%
-  );
-  background-size: 250% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: metallic-shine 3.5s linear infinite;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.75));
-  transition: filter 0.3s ease;
-}
+    100% {
+      background-position: 250% center;
+    }
+  }
 
-.logo-title:hover {
-  filter: drop-shadow(0 3px 16px rgba(0, 0, 0, 0.9));
-  animation-duration: 1.8s;
-}
+  .logo-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    background: linear-gradient(90deg,
+        #0a0a0a 0%,
+        #2a2a2a 18%,
+        #5a5a5a 30%,
+        #b0b0b0 40%,
+        #f0f0f0 48%,
+        #ffffff 50%,
+        #f0f0f0 52%,
+        #b0b0b0 60%,
+        #5a5a5a 70%,
+        #2a2a2a 82%,
+        #0a0a0a 100%);
+    background-size: 250% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: metallic-shine 3.5s linear infinite;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.75));
+    transition: filter 0.3s ease;
+  }
 
-.glass-ios::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.45) 0%,
-    rgba(255, 255, 255, 0.12) 36%,
-    rgba(255, 255, 255, 0) 62%
-  );
-}
+  .logo-title:hover {
+    filter: drop-shadow(0 3px 16px rgba(0, 0, 0, 0.9));
+    animation-duration: 1.8s;
+  }
+
+  .glass-ios::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(160deg,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.12) 36%,
+        rgba(255, 255, 255, 0) 62%);
+  }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -358,9 +380,11 @@ code, pre, kbd, samp, tt {
 .gh-markdown [data-rehype-pretty-code-figure] pre span {
   color: var(--shiki-light);
 }
+
 .dark .gh-markdown [data-rehype-pretty-code-figure] pre span {
   color: var(--shiki-dark) !important;
 }
+
 .dark .gh-markdown [data-rehype-pretty-code-figure] pre {
   background-color: #0d1117 !important;
 }
@@ -373,8 +397,14 @@ code, pre, kbd, samp, tt {
   color: #1f2328;
   word-wrap: break-word;
 }
-.gh-markdown > *:first-child { margin-top: 0 !important; }
-.gh-markdown > *:last-child  { margin-bottom: 0 !important; }
+
+.gh-markdown>*:first-child {
+  margin-top: 0 !important;
+}
+
+.gh-markdown>*:last-child {
+  margin-bottom: 0 !important;
+}
 
 /* ── Reset global font-weight override for prose content ── */
 .gh-markdown p,
@@ -393,7 +423,10 @@ code, pre, kbd, samp, tt {
   color: #0969da;
   text-decoration: none;
 }
-.gh-markdown a:hover { text-decoration: underline; }
+
+.gh-markdown a:hover {
+  text-decoration: underline;
+}
 
 /* ── Headings ── */
 .gh-markdown h1,
@@ -407,20 +440,44 @@ code, pre, kbd, samp, tt {
   font-weight: 600 !important;
   line-height: 1.25;
 }
+
 .gh-markdown h1,
 .gh-markdown h2 {
   padding-bottom: 0.3em;
   border-bottom: 1px solid #d0d7de;
 }
-.gh-markdown h1 { font-size: 2em;    margin: 0.67em 0; }
-.gh-markdown h2 { font-size: 1.5em;  }
-.gh-markdown h3 { font-size: 1.25em; }
-.gh-markdown h4 { font-size: 1em;    }
-.gh-markdown h5 { font-size: 0.875em;}
-.gh-markdown h6 { font-size: 0.85em; color: #636e7b; }
+
+.gh-markdown h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.gh-markdown h2 {
+  font-size: 1.5em;
+}
+
+.gh-markdown h3 {
+  font-size: 1.25em;
+}
+
+.gh-markdown h4 {
+  font-size: 1em;
+}
+
+.gh-markdown h5 {
+  font-size: 0.875em;
+}
+
+.gh-markdown h6 {
+  font-size: 0.85em;
+  color: #636e7b;
+}
 
 /* ── Paragraphs ── */
-.gh-markdown p { margin-top: 0; margin-bottom: 16px; }
+.gh-markdown p {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
 
 /* ── Blockquote ── */
 .gh-markdown blockquote {
@@ -429,8 +486,14 @@ code, pre, kbd, samp, tt {
   color: #59636e;
   border-left: 0.25em solid #d0d7de;
 }
-.gh-markdown blockquote > :first-child { margin-top: 0; }
-.gh-markdown blockquote > :last-child  { margin-bottom: 0; }
+
+.gh-markdown blockquote> :first-child {
+  margin-top: 0;
+}
+
+.gh-markdown blockquote> :last-child {
+  margin-bottom: 0;
+}
 
 /* ── Lists ── */
 .gh-markdown ul,
@@ -439,13 +502,26 @@ code, pre, kbd, samp, tt {
   margin-bottom: 16px;
   padding-left: 2em;
 }
+
 .gh-markdown ul ul,
 .gh-markdown ul ol,
 .gh-markdown ol ol,
-.gh-markdown ol ul { margin-top: 0; margin-bottom: 0; }
-.gh-markdown li { word-wrap: break-all; }
-.gh-markdown li > p { margin-top: 16px; }
-.gh-markdown li + li { margin-top: 0.25em; }
+.gh-markdown ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.gh-markdown li {
+  word-wrap: break-all;
+}
+
+.gh-markdown li>p {
+  margin-top: 16px;
+}
+
+.gh-markdown li+li {
+  margin-top: 0.25em;
+}
 
 /* ── Tables ── */
 .gh-markdown table {
@@ -457,20 +533,28 @@ code, pre, kbd, samp, tt {
   border-collapse: collapse;
   margin-bottom: 16px;
 }
-.gh-markdown table th { font-weight: 600 !important; }
+
+.gh-markdown table th {
+  font-weight: 600 !important;
+}
+
 .gh-markdown table th,
 .gh-markdown table td {
   padding: 6px 13px;
   border: 1px solid #d0d7de;
 }
+
 .gh-markdown table tr {
   background-color: #ffffff;
   border-top: 1px solid hsla(210, 18%, 87%, 1);
 }
-.gh-markdown table tr:nth-child(2n) { background-color: #f6f8fa; }
+
+.gh-markdown table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
 
 /* ── Inline code ── */
-.gh-markdown :not(pre) > code {
+.gh-markdown :not(pre)>code {
   padding: 0.2em 0.4em;
   margin: 0;
   font-size: 85%;
@@ -495,6 +579,7 @@ code, pre, kbd, samp, tt {
   border-radius: 6px;
   word-wrap: normal;
 }
+
 .gh-markdown pre code {
   display: inline;
   padding: 0;
@@ -507,10 +592,12 @@ code, pre, kbd, samp, tt {
   font-size: 100%;
   font-weight: 400 !important;
 }
+
 /* rehype-pretty-code wraps in a figure */
 .gh-markdown [data-rehype-pretty-code-figure] {
   margin-bottom: 16px;
 }
+
 .gh-markdown [data-rehype-pretty-code-figure] pre {
   margin-bottom: 0;
   border-radius: 6px;
@@ -549,33 +636,59 @@ code, pre, kbd, samp, tt {
 }
 
 /* ━━ Dark mode overrides ━━ */
-.dark .gh-markdown { color: #e6edf3; }
-.dark .gh-markdown a  { color: #58a6ff; }
+.dark .gh-markdown {
+  color: #e6edf3;
+}
+
+.dark .gh-markdown a {
+  color: #58a6ff;
+}
+
 .dark .gh-markdown h1,
-.dark .gh-markdown h2 { border-color: #30363d; }
-.dark .gh-markdown h6 { color: #848d97; }
+.dark .gh-markdown h2 {
+  border-color: #30363d;
+}
+
+.dark .gh-markdown h6 {
+  color: #848d97;
+}
+
 .dark .gh-markdown blockquote {
   color: #848d97;
   border-left-color: #3d444d;
 }
+
 .dark .gh-markdown table th,
-.dark .gh-markdown table td { border-color: #3d444d; }
+.dark .gh-markdown table td {
+  border-color: #3d444d;
+}
+
 .dark .gh-markdown table tr {
   background-color: #0d1117;
   border-top-color: #3d444d;
 }
-.dark .gh-markdown table tr:nth-child(2n) { background-color: #161b22; }
-.dark .gh-markdown :not(pre) > code {
+
+.dark .gh-markdown table tr:nth-child(2n) {
+  background-color: #161b22;
+}
+
+.dark .gh-markdown :not(pre)>code {
   background-color: rgba(110, 118, 129, 0.4);
 }
+
 .dark .gh-markdown pre {
   background-color: #161b22;
   color: #e6edf3;
 }
+
 .dark .gh-markdown [data-rehype-pretty-code-figure] pre {
   background-color: #161b22;
 }
-.dark .gh-markdown hr { background-color: #30363d; }
+
+.dark .gh-markdown hr {
+  background-color: #30363d;
+}
+
 .dark .gh-markdown kbd {
   color: #e6edf3;
   background-color: #161b22;
