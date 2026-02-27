@@ -33,7 +33,7 @@ export default async function AdminInteractionsPage() {
                 id: item.id,
                 content: item.content,
                 status: item.status,
-                postTitle: item.post.title,
+                postTitle: item.post?.title ?? "Moment",
                 userName: item.user.name ?? "",
                 userEmail: item.user.email
             }))}

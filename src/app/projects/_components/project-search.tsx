@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Globe2 } from "lucide-react";
+import { useLang } from "@/features/i18n/lang-context";
 
 type Props = {
   cat: string;
@@ -10,6 +11,8 @@ type Props = {
 };
 
 export function ProjectSearch({ cat, defaultQ }: Props) {
+  const { dictionary } = useLang();
+  const d = dictionary!;
   const router = useRouter();
   const [q, setQ] = useState(defaultQ);
 
@@ -30,7 +33,7 @@ export function ProjectSearch({ cat, defaultQ }: Props) {
       <input
         className="h-10 flex-1 rounded-xl border border-zinc-200 bg-white px-3 text-sm outline-none transition focus:border-sky-300 focus:ring-2 focus:ring-sky-300/30"
         onChange={(e) => setQ(e.target.value)}
-        placeholder="搜索工具名、标签、说明..."
+        placeholder={d.projects.searchPlaceholder}
         value={q}
       />
       <button
@@ -38,7 +41,7 @@ export function ProjectSearch({ cat, defaultQ }: Props) {
         type="submit"
       >
         <Globe2 className="size-4" />
-        搜索
+        {d.projects.searchBtn}
       </button>
     </form>
   );

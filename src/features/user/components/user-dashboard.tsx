@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLang } from "@/features/i18n/lang-context";
 
 type InteractionType = "comment" | "favorite" | "like" | "view";
 
@@ -21,11 +22,14 @@ type DashboardProps = {
   }>;
 };
 
-const typeLabel: Record<InteractionType, string> = {
-  comment: "评论",
-  favorite: "收藏",
-  like: "点赞",
-  view: "浏览"
+const getTypeLabel = (type: InteractionType, dict: any) => {
+  const dictionaryLabel: Record<InteractionType, string> = {
+    comment: dict.userDashboard.typeComment,
+    favorite: dict.userDashboard.typeFavorite,
+    like: dict.userDashboard.typeLike,
+    view: dict.userDashboard.typeView
+  };
+  return dictionaryLabel[type];
 };
 
 const typeClass: Record<InteractionType, string> = {
@@ -36,18 +40,21 @@ const typeClass: Record<InteractionType, string> = {
 };
 
 export function UserDashboard({ overview, recent }: DashboardProps) {
+  const { lang, dictionary } = useLang();
+  const dict = dictionary!;
+
   const cards = [
-    { title: "注册天数", value: overview.joinedDays },
-    { title: "评论总数", value: overview.commentCount },
-    { title: "收藏文章", value: overview.favoriteCount },
-    { title: "点赞文章", value: overview.likeCount }
+    { title: dict.userDashboard.joinedDays, value: overview.joinedDays },
+    { title: dict.userDashboard.commentCount, value: overview.commentCount },
+    { title: dict.userDashboard.favoriteCount, value: overview.favoriteCount },
+    { title: dict.userDashboard.likeCount, value: overview.likeCount }
   ];
 
   return (
     <div className="w-full space-y-4">
       <section className="wanfeng-user-panel rounded-2xl border border-teal-700/30 bg-teal-600 p-6">
-        <h2 className="mb-1 text-3xl font-bold text-black">欢迎来到用户仪表盘</h2>
-        <p className="text-black">在这里可以查看概览、个人资料和账号安全状态。</p>
+        <h2 className="mb-1 text-3xl font-bold text-black">{dict.userDashboard.welcomeTitle}</h2>
+        <p className="text-black">{dict.userDashboard.welcomeSubtitle}</p>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -60,21 +67,21 @@ export function UserDashboard({ overview, recent }: DashboardProps) {
       </section>
 
       <section className="wanfeng-user-panel rounded-2xl border border-slate-200/60 bg-white/80 p-4 shadow-sm">
-        <h3 className="mb-3 text-lg font-semibold text-slate-900">最近动态</h3>
+        <h3 className="mb-3 text-lg font-semibold text-slate-900">{dict.userDashboard.recentActivity}</h3>
         {recent.length === 0 ? (
-          <p className="text-sm text-slate-500">暂无动态。</p>
+          <p className="text-sm text-slate-500">{dict.userDashboard.noActivity}</p>
         ) : (
           <div className="space-y-3">
             {recent.map((item) => (
               <div key={item.id} className="rounded-lg border border-slate-200/70 bg-white/60 p-3">
                 <div className="mb-1 flex items-center gap-2">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${typeClass[item.type]}`}>{typeLabel[item.type]}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${typeClass[item.type]}`}>{getTypeLabel(item.type, dict)}</span>
                   <Link className="font-medium text-slate-900 hover:underline" href={`/blog/${item.slug}`}>
                     {item.title}
                   </Link>
                 </div>
                 <p className="text-sm text-slate-700">{item.description}</p>
-                <p className="mt-1 text-xs text-slate-500">{new Date(item.at).toLocaleString()}</p>
+                <p className="mt-1 text-xs text-slate-500">{new Date(item.at).toLocaleString(lang === "zh" ? "zh-CN" : "en-US")}</p>
               </div>
             ))}
           </div>

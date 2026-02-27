@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Card, Form, Input, Space, Typography, Upload, message } from "antd";
+import { useLang } from "@/features/i18n/lang-context";
 
 type ProfileData = {
   email: string;
@@ -25,6 +26,8 @@ export function UserProfilePanel({ profile }: { profile: ProfileData }) {
   }>();
   const [avatar, setAvatar] = useState(profile.image ?? "");
   const [pending, startTransition] = useTransition();
+  const { lang, dictionary } = useLang();
+  const dict = dictionary!;
 
   const uploadAvatar = async (file: File) => {
     const data = new FormData();
@@ -32,13 +35,13 @@ export function UserProfilePanel({ profile }: { profile: ProfileData }) {
     const response = await fetch("/api/user/avatar", { method: "POST", body: data });
     const result = await response.json();
     if (!response.ok || !result.ok) {
-      message.error(result.message ?? "头像上传失败");
+      message.error(result.message ?? dict.userDashboard.updateProfileFail);
       return false;
     }
     const url = result.data.url as string;
     setAvatar(url);
     form.setFieldValue("image", url);
-    message.success("头像上传成功");
+    message.success(dict.userDashboard.updateProfileSuccess);
     return false;
   };
 
@@ -51,24 +54,24 @@ export function UserProfilePanel({ profile }: { profile: ProfileData }) {
       });
       const result = await response.json();
       if (!response.ok || !result.ok) {
-        message.error(result.message ?? "保存失败");
+        message.error(result.message ?? dict.userDashboard.updateProfileFail);
         return;
       }
-      message.success("资料已更新");
+      message.success(dict.userDashboard.updateProfileSuccess);
     });
   };
 
   return (
     <Space orientation="vertical" size={16} className="w-full">
-      <Card className="wanfeng-user-panel" title="基础信息">
+      <Card className="wanfeng-user-panel" title={dict.userDashboard.basicInfo}>
         <Space orientation="vertical" size={6}>
-          <Typography.Text>注册邮箱：{profile.email}</Typography.Text>
-          <Typography.Text>注册时间：{new Date(profile.createdAt).toLocaleString()}</Typography.Text>
-          <Typography.Text>角色：{profile.role}</Typography.Text>
+          <Typography.Text>{dict.userDashboard.registerEmail}{profile.email}</Typography.Text>
+          <Typography.Text>{dict.userDashboard.registerTime}{new Date(profile.createdAt).toLocaleString(lang === "zh" ? "zh-CN" : "en-US")}</Typography.Text>
+          <Typography.Text>{dict.userDashboard.role}{profile.role === "ADMIN" ? dict.admin.adminRole : dict.admin.userRole}</Typography.Text>
         </Space>
       </Card>
 
-      <Card className="wanfeng-user-panel" title="个人资料">
+      <Card className="wanfeng-user-panel" title={dict.userDashboard.profile}>
         <Form
           form={form}
           layout="vertical"
@@ -81,11 +84,11 @@ export function UserProfilePanel({ profile }: { profile: ProfileData }) {
           }}
           onFinish={save}
         >
-          <Form.Item label="头像">
+          <Form.Item label={dict.userDashboard.avatar}>
             <Space align="center">
               <Avatar size={72} src={avatar || undefined} icon={<UserOutlined />} />
               <Upload beforeUpload={uploadAvatar} showUploadList={false} accept="image/png,image/jpeg,image/webp,image/gif">
-                <Button icon={<UploadOutlined />}>上传头像</Button>
+                <Button icon={<UploadOutlined />}>{dict.userDashboard.uploadAvatar}</Button>
               </Upload>
             </Space>
           </Form.Item>
@@ -93,21 +96,21 @@ export function UserProfilePanel({ profile }: { profile: ProfileData }) {
             <Input />
           </Form.Item>
 
-          <Form.Item name="name" label="昵称" rules={[{ required: true, message: "请输入昵称" }]}>
+          <Form.Item name="name" label={dict.userDashboard.nickname} rules={[{ required: true, message: dict.userDashboard.nicknameRequired }]}>
             <Input maxLength={50} />
           </Form.Item>
-          <Form.Item name="bio" label="个人简介">
+          <Form.Item name="bio" label={dict.userDashboard.bio}>
             <Input.TextArea rows={4} maxLength={300} />
           </Form.Item>
-          <Form.Item name="githubUrl" label="GitHub 链接">
+          <Form.Item name="githubUrl" label={dict.userDashboard.githubUrl}>
             <Input placeholder="https://github.com/yourname" />
           </Form.Item>
-          <Form.Item name="websiteUrl" label="个人主页">
+          <Form.Item name="websiteUrl" label={dict.userDashboard.websiteUrl}>
             <Input placeholder="https://example.com" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={pending}>
-              保存资料
+              {dict.userDashboard.saveProfile}
             </Button>
           </Form.Item>
         </Form>

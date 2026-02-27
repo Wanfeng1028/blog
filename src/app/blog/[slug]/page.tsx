@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { MarkdownRenderer } from "@/lib/markdown/render";
 import { absoluteUrl } from "@/lib/site";
 import { getAdjacentPosts, getCommentsByPostSlug, getPostBySlug } from "@/features/blog/server/queries";
@@ -9,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PostInteractionBar } from "@/features/user/components/post-interaction-bar";
 import { PostViewTracker } from "@/features/user/components/post-view-tracker";
+import { getDictionary } from "@/features/i18n/get-dictionary";
+import type { SupportedLang } from "@/features/i18n/get-dictionary";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,9 +22,13 @@ export const revalidate = 300;
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("site_lang")?.value || "zh") as SupportedLang;
+  const d = await getDictionary(lang);
+
   if (!post) {
     return {
-      title: "文章不存在"
+      title: d.blogPost.postNotFound
     };
   }
   const url = absoluteUrl(`/blog/${post.slug}`);
@@ -52,6 +59,10 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) notFound();
+
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("site_lang")?.value || "zh") as SupportedLang;
+  const d = await getDictionary(lang);
 
   const [adjacent, comments] = await Promise.all([
     getAdjacentPosts(post.slug),
@@ -84,7 +95,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
       <article className="space-y-6">
         <PostViewTracker postId={post.id} />
 
-        <header className="space-y-3 rounded-2xl border border-white/45 bg-white/65 p-6 shadow-lg backdrop-blur-md">
+        <header className="space-y-3 rounded-2xl border border-white/45 bg-white/65 p-6 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/40 dark:shadow-none">
           <div className="flex flex-wrap gap-2">
             {post.tags.map((tag) => (
               <Badge key={tag}>{tag}</Badge>
@@ -92,16 +103,16 @@ export default async function BlogDetailPage({ params }: PageProps) {
           </div>
           <h1 className="text-h1 font-semibold">{post.title}</h1>
           <p className="text-muted">{post.summary}</p>
-          <p className="text-sm text-muted">{post.readingTime} 分钟阅读</p>
+          <p className="text-sm text-muted">{d.blogPost.readingTime.replace("{n}", post.readingTime.toString())}</p>
           <div className="flex gap-2">
             <Button asChild size="sm" variant="outline">
               <a href={`https://x.com/intent/tweet?url=${encodeURIComponent(shareUrl)}`} rel="noreferrer" target="_blank">
-                分享到 X
+                {d.blogPost.shareToX}
               </a>
             </Button>
             <Button asChild size="sm" variant="outline">
               <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} rel="noreferrer" target="_blank">
-                分享到 LinkedIn
+                {d.blogPost.shareToLinkedIn}
               </a>
             </Button>
           </div>
@@ -110,25 +121,25 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
         <MarkdownRenderer content={post.content} />
 
-        <nav className="grid gap-2 rounded-lg border border-white/40 bg-white/50 p-4 backdrop-blur-sm md:grid-cols-2">
+        <nav className="grid gap-2 rounded-lg border border-white/40 bg-white/50 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-zinc-900/40 md:grid-cols-2">
           <div>
-            <p className="text-xs text-muted">上一篇</p>
+            <p className="text-xs text-muted">{d.blogPost.prevPost}</p>
             {adjacent.previous ? (
               <Link className="text-sm hover:text-primary" href={`/blog/${adjacent.previous.slug}`}>
                 {adjacent.previous.title}
               </Link>
             ) : (
-              <p className="text-sm text-muted">没有了</p>
+              <p className="text-sm text-muted">{d.blogPost.noMore}</p>
             )}
           </div>
           <div className="md:text-right">
-            <p className="text-xs text-muted">下一篇</p>
+            <p className="text-xs text-muted">{d.blogPost.nextPost}</p>
             {adjacent.next ? (
               <Link className="text-sm hover:text-primary" href={`/blog/${adjacent.next.slug}`}>
                 {adjacent.next.title}
               </Link>
             ) : (
-              <p className="text-sm text-muted">没有了</p>
+              <p className="text-sm text-muted">{d.blogPost.noMore}</p>
             )}
           </div>
         </nav>

@@ -39,8 +39,8 @@ export default async function DashboardInteractionsPage() {
         status: item.status,
         createdAt: new Date(item.createdAt).toISOString(),
         post: {
-          title: item.post.title,
-          slug: item.post.slug
+          title: item.post?.title ?? "Moment",
+          slug: item.post?.slug ?? ""
         }
       }))}
     />

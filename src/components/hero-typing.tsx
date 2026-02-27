@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils/cn";
+import { useLang } from "@/features/i18n/lang-context";
 
-const LINE_ONE = "Wanfeng's home!";
-const LINE_TWO = "Life is coding, I will debug it.";
 const SOUND_KEY = "hero_typing_sound_enabled";
 
 type Phase = "typing1" | "pause1" | "typing2" | "hold" | "deleting2" | "deleting1";
@@ -14,9 +13,26 @@ function randomDelay(min: number, max: number) {
 }
 
 export function HeroTyping({ loop = true }: { loop?: boolean }) {
+  const { lang, dictionary } = useLang();
+  const d = dictionary!;
+  const LINE_ONE = d.hero.line1;
+  const LINE_TWO = d.hero.line2;
+
   const [lineOneCount, setLineOneCount] = useState(() => (loop ? 0 : LINE_ONE.length));
   const [lineTwoCount, setLineTwoCount] = useState(() => (loop ? 0 : LINE_TWO.length));
   const [phase, setPhase] = useState<Phase>(() => (loop ? "typing1" : "hold"));
+
+  // Reset progress when lang changes
+  useEffect(() => {
+    if (loop) {
+      setLineOneCount(0);
+      setLineTwoCount(0);
+      setPhase("typing1");
+    } else {
+      setLineOneCount(LINE_ONE.length);
+      setLineTwoCount(LINE_TWO.length);
+    }
+  }, [lang, loop, LINE_ONE.length, LINE_TWO.length]);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [isInViewport, setIsInViewport] = useState(true);
   const [isDocumentVisible, setIsDocumentVisible] = useState(true);
@@ -47,14 +63,17 @@ export function HeroTyping({ loop = true }: { loop?: boolean }) {
     const bodyOsc = ctx.createOscillator();
     const bodyGain = ctx.createGain();
     bodyOsc.type = "square";
-    bodyOsc.frequency.value = randomDelay(1850, 2550);
+    // Slightly higher frequency for a crisp mechanical click
+    bodyOsc.frequency.setValueAtTime(randomDelay(2200, 3200), now);
+
     bodyGain.gain.setValueAtTime(0.0001, now);
-    bodyGain.gain.exponentialRampToValueAtTime(0.055, now + 0.001);
-    bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.022);
+    bodyGain.gain.exponentialRampToValueAtTime(0.06, now + 0.001);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+
     bodyOsc.connect(bodyGain);
     bodyGain.connect(ctx.destination);
     bodyOsc.start(now);
-    bodyOsc.stop(now + 0.024);
+    bodyOsc.stop(now + 0.02);
 
     const clickBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.012), ctx.sampleRate);
     const channel = clickBuffer.getChannelData(0);
@@ -63,13 +82,17 @@ export function HeroTyping({ loop = true }: { loop?: boolean }) {
     }
     const clickSource = ctx.createBufferSource();
     clickSource.buffer = clickBuffer;
+
     const highpass = ctx.createBiquadFilter();
     highpass.type = "highpass";
-    highpass.frequency.value = 2400;
+    // Lower filter threshold to let more sound through
+    highpass.frequency.setValueAtTime(1200, now);
+
     const clickGain = ctx.createGain();
     clickGain.gain.setValueAtTime(0.0001, now);
-    clickGain.gain.exponentialRampToValueAtTime(0.03, now + 0.0007);
-    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.011);
+    clickGain.gain.exponentialRampToValueAtTime(0.04, now + 0.0007);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.01);
+
     clickSource.connect(highpass);
     highpass.connect(clickGain);
     clickGain.connect(ctx.destination);
@@ -179,18 +202,37 @@ export function HeroTyping({ loop = true }: { loop?: boolean }) {
     const next = !soundEnabled;
     setSoundEnabled(next);
     window.localStorage.setItem(SOUND_KEY, next ? "1" : "0");
+
     if (next) {
-      const Ctx =
-        window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (Ctx && !audioContextRef.current) {
-        audioContextRef.current = new Ctx();
+      if (!audioContextRef.current) {
+        const Ctx =
+          window.AudioContext ||
+          (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (Ctx) audioContextRef.current = new Ctx();
       }
       if (audioContextRef.current?.state === "suspended") {
         await audioContextRef.current.resume();
       }
     }
   };
+
+  // Ensure AudioContext is resumed on any user interaction if sound is enabled
+  useEffect(() => {
+    if (!soundEnabled) return;
+
+    const handleInteraction = async () => {
+      if (audioContextRef.current?.state === "suspended") {
+        await audioContextRef.current.resume();
+      }
+    };
+
+    window.addEventListener("click", handleInteraction, { once: true });
+    window.addEventListener("keydown", handleInteraction, { once: true });
+    return () => {
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("keydown", handleInteraction);
+    };
+  }, [soundEnabled]);
 
   const caretLineOne = phase === "typing1" || phase === "deleting1";
   const caretLineTwo = phase === "typing2" || phase === "deleting2";
@@ -221,7 +263,7 @@ export function HeroTyping({ loop = true }: { loop?: boolean }) {
           onClick={toggleSound}
           type="button"
         >
-          Key Sound: {soundEnabled ? "On" : "Off"}
+          {d.hero.sound}: {soundEnabled ? d.hero.on : d.hero.off}
         </button>
       ) : null}
     </div>

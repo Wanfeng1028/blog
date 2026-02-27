@@ -9,6 +9,7 @@ import {
   TeamOutlined
 } from "@ant-design/icons";
 import { Card, Col, Row, Space, Statistic, Table, Tag, Typography } from "antd";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 type DashboardProps = {
   overview: {
@@ -38,25 +39,27 @@ type DashboardProps = {
 };
 
 export function AdminDashboard({ overview, latestUsers, latestEvents }: DashboardProps) {
+  const dict = useDictionary();
+
   const cards = [
-    { title: "总用户数", value: overview.users, icon: <TeamOutlined />, color: "bg-sky-500" },
-    { title: "文章总数", value: overview.posts, icon: <FileTextOutlined />, color: "bg-teal-600" },
-    { title: "项目总数", value: overview.projects, icon: <ProjectOutlined />, color: "bg-slate-500" },
-    { title: "标签总数", value: overview.tags, icon: <TagsOutlined />, color: "bg-amber-500" },
-    { title: "评论总数", value: overview.comments, icon: <MessageOutlined />, color: "bg-rose-400" },
-    { title: "已发布文章", value: overview.publishedPosts, icon: <FileTextOutlined />, color: "bg-cyan-600" },
-    { title: "安全告警", value: overview.securityAlerts, icon: <AlertOutlined />, color: "bg-red-500" },
-    { title: "登录失败", value: overview.failedLogins, icon: <AlertOutlined />, color: "bg-slate-400" }
+    { title: dict.admin.totalUsers, value: overview.users, icon: <TeamOutlined />, color: "bg-sky-500" },
+    { title: dict.admin.totalPosts, value: overview.posts, icon: <FileTextOutlined />, color: "bg-teal-600" },
+    { title: dict.admin.totalProjects, value: overview.projects, icon: <ProjectOutlined />, color: "bg-slate-500" },
+    { title: dict.admin.totalTags, value: overview.tags, icon: <TagsOutlined />, color: "bg-amber-500" },
+    { title: dict.admin.totalComments, value: overview.comments, icon: <MessageOutlined />, color: "bg-rose-400" },
+    { title: dict.admin.publishedPosts, value: overview.publishedPosts, icon: <FileTextOutlined />, color: "bg-cyan-600" },
+    { title: dict.admin.securityAlerts, value: overview.securityAlerts, icon: <AlertOutlined />, color: "bg-red-500" },
+    { title: dict.admin.failedLogins, value: overview.failedLogins, icon: <AlertOutlined />, color: "bg-slate-400" }
   ];
 
   return (
     <Space orientation="vertical" size={16} className="w-full">
       <Card className="wanfeng-admin-panel !rounded-2xl !border-teal-700/30 !bg-teal-600">
         <Typography.Title level={3} className="!mb-1 !text-black/90">
-          早上好，系统管理员
+          {dict.admin.welcomeAdmin}
         </Typography.Title>
         <Typography.Text className="!text-black/90">
-          这里是晚风博客后台概览，你可以在这里快速查看全站运行状态。
+          {dict.admin.adminOverview}
         </Typography.Text>
       </Card>
 
@@ -75,13 +78,13 @@ export function AdminDashboard({ overview, latestUsers, latestEvents }: Dashboar
 
       <Row gutter={[16, 16]}>
         <Col xs={24} xl={12}>
-          <Card className="wanfeng-admin-panel" title="最近注册用户">
+          <Card className="wanfeng-admin-panel" title={dict.admin.recentUsers}>
             <div className="divide-y divide-slate-100">
               {latestUsers.map((user) => (
                 <div key={user.id} className="flex flex-col gap-0.5 py-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-800">{user.name ?? "未命名用户"}</span>
-                    <Tag color={user.role === "ADMIN" ? "gold" : "blue"}>{user.role}</Tag>
+                    <span className="font-medium text-slate-800">{user.name ?? dict.admin.unnamedUser}</span>
+                    <Tag color={user.role === "ADMIN" ? "gold" : "blue"}>{user.role === "ADMIN" ? dict.admin.adminRole : dict.admin.userRole}</Tag>
                   </div>
                   <div className="text-sm text-slate-600">{user.email}</div>
                   <div className="text-xs text-slate-400">{new Date(user.createdAt).toLocaleString()}</div>
@@ -91,23 +94,23 @@ export function AdminDashboard({ overview, latestUsers, latestEvents }: Dashboar
           </Card>
         </Col>
         <Col xs={24} xl={12}>
-          <Card className="wanfeng-admin-panel" title="最近认证事件">
+          <Card className="wanfeng-admin-panel" title={dict.admin.recentAuthEvents}>
             <Table
               rowKey="id"
               pagination={false}
               size="small"
               dataSource={latestEvents}
               columns={[
-                { title: "事件", dataIndex: "event_type", key: "event_type" },
+                { title: dict.admin.event, dataIndex: "event_type", key: "event_type" },
                 {
-                  title: "状态",
+                  title: dict.admin.status,
                   dataIndex: "success",
                   key: "success",
-                  render: (value: boolean) => <Tag color={value ? "success" : "error"}>{value ? "成功" : "失败"}</Tag>
+                  render: (value: boolean) => <Tag color={value ? "success" : "error"}>{value ? dict.admin.success : dict.admin.fail}</Tag>
                 },
-                { title: "邮箱", dataIndex: "email", key: "email", render: (v: string | null) => v ?? "-" },
+                { title: dict.admin.email, dataIndex: "email", key: "email", render: (v: string | null) => v ?? "-" },
                 {
-                  title: "时间",
+                  title: dict.admin.time,
                   dataIndex: "created_at",
                   key: "created_at",
                   render: (value: string) => new Date(value).toLocaleString()

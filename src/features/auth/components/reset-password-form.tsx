@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const dict = useDictionary();
 
   const submit = () => {
     startTransition(async () => {
@@ -31,10 +33,10 @@ export function ResetPasswordForm() {
       });
       const result = await response.json();
       if (!response.ok || !result.ok) {
-        toast.error(result.message ?? "重置失败");
+        toast.error(result.message ?? dict.auth.resetFail);
         return;
       }
-      toast.success("重置成功，请重新登录");
+      toast.success(dict.auth.resetSuccess);
       router.push("/login");
     });
   };
@@ -42,15 +44,15 @@ export function ResetPasswordForm() {
   return (
     <div className="auth-card w-full max-w-md space-y-4 rounded-2xl p-6 text-white">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">重置密码</h1>
+        <h1 className="text-2xl font-semibold">{dict.auth.resetTitle}</h1>
       </div>
-      <Input className="border-sky-200/30 bg-white/90 text-zinc-900" onChange={(event) => setEmail(event.target.value)} placeholder="邮箱" type="email" value={email} />
-      <Input className="border-sky-200/30 bg-white/90 text-zinc-900" onChange={(event) => setCode(event.target.value)} placeholder="邮箱验证码" value={code} />
+      <Input className="border-sky-200/30 bg-white/90 text-zinc-900" onChange={(event) => setEmail(event.target.value)} placeholder={dict.auth.email} type="email" value={email} />
+      <Input className="border-sky-200/30 bg-white/90 text-zinc-900" onChange={(event) => setCode(event.target.value)} placeholder={dict.auth.emailVerifyCode} value={code} />
       <div className="relative">
         <Input
           className="border-sky-200/30 bg-white/90 pr-10 text-zinc-900"
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="新密码（至少 8 位）"
+          placeholder={dict.auth.newPassword}
           type={showPassword ? "text" : "password"}
           value={password}
         />
@@ -71,7 +73,7 @@ export function ResetPasswordForm() {
         <Input
           className="border-sky-200/30 bg-white/90 pr-10 text-zinc-900"
           onChange={(event) => setConfirmPassword(event.target.value)}
-          placeholder="确认新密码"
+          placeholder={dict.auth.confirmNewPassword}
           type={showConfirmPassword ? "text" : "password"}
           value={confirmPassword}
         />
@@ -89,12 +91,12 @@ export function ResetPasswordForm() {
         </button>
       </div>
       <Button className="w-full" loading={isPending} onClick={submit} type="button">
-        提交重置
+        {dict.auth.resetSubmit}
       </Button>
       <p className="text-center text-sm text-slate-100/90">
-        没收到验证码？
+        {dict.auth.noCode}
         <Link className="ml-1 hover:underline" href="/forgot-password">
-          重新发送
+          {dict.auth.resend}
         </Link>
       </p>
     </div>

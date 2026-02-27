@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Form, Input, Popconfirm, Space, Table, Tag, Typography, message } from "antd";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 type CategoryItem = {
   id: string;
@@ -14,6 +15,7 @@ type CategoryItem = {
 
 export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[] }) {
   const router = useRouter();
+  const dict = useDictionary();
   const [form] = Form.useForm<{ name: string }>();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -31,10 +33,10 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
     });
     const result = await response.json();
     if (!response.ok || !result.ok) {
-      message.error(result.message ?? "创建分类失败");
+      message.error(result.message ?? dict.admin.createCategoryFail);
       return;
     }
-    message.success("分类创建成功");
+    message.success(dict.admin.createCategorySuccess);
     form.resetFields();
     router.refresh();
   };
@@ -48,10 +50,10 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
     });
     const result = await response.json();
     if (!response.ok || !result.ok) {
-      message.error(result.message ?? "更新分类失败");
+      message.error(result.message ?? dict.admin.updateCategoryFail);
       return;
     }
-    message.success("分类已更新");
+    message.success(dict.admin.updateCategorySuccess);
     setEditingId(null);
     setEditingName("");
     router.refresh();
@@ -61,10 +63,10 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
     const response = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
     const result = await response.json();
     if (!response.ok || !result.ok) {
-      message.error(result.message ?? "删除分类失败");
+      message.error(result.message ?? dict.admin.deleteCategoryFail);
       return;
     }
-    message.success("分类已删除");
+    message.success(dict.admin.deleteCategorySuccess);
     router.refresh();
   };
 
@@ -83,7 +85,7 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
     });
     const result = await response.json();
     if (!response.ok || !result.ok) {
-      message.error(result.message ?? "分类排序失败");
+      message.error(result.message ?? dict.admin.reorderCategoryFail);
       return;
     }
     router.refresh();
@@ -92,17 +94,17 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
   return (
     <Space orientation="vertical" size={16} className="w-full">
       <Typography.Title level={3} className="!mb-0">
-        文章分类管理
+        {dict.admin.categoryManage}
       </Typography.Title>
 
-      <Card title="新增分类">
+      <Card title={dict.admin.newCategory}>
         <Form form={form} layout="inline" onFinish={createCategory}>
-          <Form.Item name="name" rules={[{ required: true, message: "请输入分类名称" }]}>
-            <Input placeholder="例如：计算机网络" style={{ width: 240 }} />
+          <Form.Item name="name" rules={[{ required: true, message: dict.admin.categoryNameRequired }]}>
+            <Input placeholder={dict.admin.categoryNamePlaceholder} style={{ width: 240 }} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              创建
+              {dict.admin.create}
             </Button>
           </Form.Item>
         </Form>
@@ -114,9 +116,9 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
           pagination={false}
           dataSource={sorted}
           columns={[
-            { title: "排序", dataIndex: "order", key: "order", width: 80 },
+            { title: dict.admin.order, dataIndex: "order", key: "order", width: 80 },
             {
-              title: "分类名称",
+              title: dict.admin.categoryName,
               key: "name",
               render: (_, row: CategoryItem) =>
                 editingId === row.id ? (
@@ -132,18 +134,18 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
                 )
             },
             { title: "Slug", dataIndex: "slug", key: "slug", render: (value: string) => <Tag>{value}</Tag> },
-            { title: "文章数量", dataIndex: "postCount", key: "postCount", width: 120 },
+            { title: dict.admin.postCount, dataIndex: "postCount", key: "postCount", width: 120 },
             {
-              title: "操作",
+              title: dict.admin.actions,
               key: "actions",
               width: 280,
               render: (_, row: CategoryItem) => (
                 <Space>
                   <Button size="small" onClick={() => moveCategory(row.id, "up")}>
-                    上移
+                    {dict.admin.moveUp}
                   </Button>
                   <Button size="small" onClick={() => moveCategory(row.id, "down")}>
-                    下移
+                    {dict.admin.moveDown}
                   </Button>
                   <Button
                     size="small"
@@ -152,16 +154,16 @@ export function AdminCategoriesPanel({ categories }: { categories: CategoryItem[
                       setEditingName(row.name);
                     }}
                   >
-                    重命名
+                    {dict.admin.rename}
                   </Button>
                   <Popconfirm
-                    title="确认删除该分类？"
-                    okText="删除"
-                    cancelText="取消"
+                    title={dict.admin.confirmDeleteCategory}
+                    okText={dict.admin.delete}
+                    cancelText={dict.admin.cancel}
                     onConfirm={() => removeCategory(row.id)}
                   >
                     <Button danger size="small">
-                      删除
+                      {dict.admin.delete}
                     </Button>
                   </Popconfirm>
                 </Space>

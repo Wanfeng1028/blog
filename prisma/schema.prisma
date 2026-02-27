@@ -24,6 +24,7 @@ model User {
   postViews     PostView[]
   profile       UserProfile?
   sessions      Session[]
+  moments       Moment[]
 }
 
 model Account {
@@ -134,14 +135,16 @@ model ImageAsset {
 
 model Comment {
   id        String        @id @default(cuid())
-  postId    String
+  postId    String?
+  momentId  String?
   userId    String
   parentId  String?
   content   String
   status    CommentStatus @default(VISIBLE)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post      Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  moment    Moment?       @relation(fields: [momentId], references: [id], onDelete: Cascade)
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[]     @relation("CommentReplies")
@@ -341,4 +344,15 @@ enum CommentStatus {
   VISIBLE
   HIDDEN
   DELETED
+}
+
+model Moment {
+  id        String    @id @default(cuid())
+  content   String
+  images    Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  Comment[]
 }

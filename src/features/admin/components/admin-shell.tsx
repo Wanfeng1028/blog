@@ -18,9 +18,11 @@ import {
   SafetyOutlined,
   SettingOutlined,
   TagsOutlined,
+  CoffeeOutlined,
   UserOutlined
 } from "@ant-design/icons";
 import { Avatar, Button, Layout, Menu, Space, Typography } from "antd";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 const { Header, Sider, Content } = Layout;
 
@@ -28,56 +30,61 @@ type AdminShellProps = {
   children: ReactNode;
 };
 
-const menuItems: MenuProps["items"] = [
+const getMenuItems = (dict: ReturnType<typeof useDictionary>): MenuProps["items"] => [
   {
     key: "/admin",
     icon: <AppstoreOutlined />,
-    label: <Link href="/admin">系统首页</Link>
+    label: <Link href="/admin">{dict.admin.systemHome}</Link>
   },
   {
     key: "/admin/posts",
     icon: <FileTextOutlined />,
-    label: <Link href="/admin/posts">文章管理</Link>
+    label: <Link href="/admin/posts">{dict.admin.postManage}</Link>
   },
   {
     key: "/admin/categories",
     icon: <BarsOutlined />,
-    label: <Link href="/admin/categories">文章分类管理</Link>
+    label: <Link href="/admin/categories">{dict.admin.categoryManage}</Link>
   },
   {
     key: "/admin/tags",
     icon: <TagsOutlined />,
-    label: <Link href="/admin/tags">标签管理</Link>
+    label: <Link href="/admin/tags">{dict.admin.tagManage}</Link>
   },
   {
     key: "/admin/assets",
     icon: <PictureOutlined />,
-    label: <Link href="/admin/assets">资源管理</Link>
+    label: <Link href="/admin/assets">{dict.admin.assetManage}</Link>
   },
   {
-    key: "/admin/settings",
+    key: "/admin/moments",
+    icon: <CoffeeOutlined />,
+    label: <Link href="/admin/moments">{dict.admin.momentManage ?? "碎碎念管理"}</Link>
+  },
+  {
+    key: "settings-group",
     icon: <SettingOutlined />,
-    label: "站点设置",
+    label: dict.admin.siteSettings,
     children: [
       {
         key: "/admin/settings",
         icon: <CustomerServiceOutlined />,
-        label: <Link href="/admin/settings">站点配置</Link>
+        label: <Link href="/admin/settings">{dict.admin.siteConfig}</Link>
       },
       {
         key: "/admin/settings/projects",
         icon: <FundProjectionScreenOutlined />,
-        label: <Link href="/admin/settings/projects">项目管理</Link>
+        label: <Link href="/admin/settings/projects">{dict.admin.projectManage}</Link>
       },
       {
         key: "/admin/settings/interactions",
         icon: <MessageOutlined />,
-        label: <Link href="/admin/settings/interactions">互动管理</Link>
+        label: <Link href="/admin/settings/interactions">{dict.admin.interactionManage}</Link>
       },
       {
         key: "/admin/settings/users",
         icon: <SafetyOutlined />,
-        label: <Link href="/admin/settings/users">用户与安全</Link>
+        label: <Link href="/admin/settings/users">{dict.admin.userSecurity}</Link>
       }
     ]
   }
@@ -88,6 +95,7 @@ function resolveSelectedKey(pathname: string): string {
   if (pathname.startsWith("/admin/categories")) return "/admin/categories";
   if (pathname.startsWith("/admin/tags")) return "/admin/tags";
   if (pathname.startsWith("/admin/assets")) return "/admin/assets";
+  if (pathname.startsWith("/admin/moments")) return "/admin/moments";
   if (pathname === "/admin/settings/projects") return "/admin/settings/projects";
   if (pathname === "/admin/settings/interactions") return "/admin/settings/interactions";
   if (pathname === "/admin/settings/users") return "/admin/settings/users";
@@ -100,6 +108,7 @@ export function AdminShell({ children }: AdminShellProps) {
   const router = useRouter();
   const { data } = useSession();
   const selectedKey = resolveSelectedKey(pathname);
+  const dict = useDictionary();
 
   useEffect(() => {
     const routes = ["/admin", "/admin/posts", "/admin/categories", "/admin/tags", "/admin/assets", "/admin/settings", "/admin/settings/projects", "/admin/settings/interactions", "/admin/settings/users"];
@@ -171,18 +180,18 @@ export function AdminShell({ children }: AdminShellProps) {
           <div className="px-4 pb-3 pt-4">
             <div className="rounded-xl border border-cyan-200/60 bg-cyan-500 px-3 py-3 text-cyan-50 shadow-sm">
               <Typography.Title level={5} className="!mb-1 !text-cyan-50">
-                晚风管理平台
+                {dict.admin.platformTitle}
               </Typography.Title>
-              <Typography.Text className="!text-cyan-100">内容、互动、站点配置统一管理</Typography.Text>
+              <Typography.Text className="!text-cyan-100">{dict.admin.platformDesc}</Typography.Text>
             </div>
           </div>
-          <Menu mode="inline" selectedKeys={[selectedKey]} defaultOpenKeys={["/admin/settings"]} items={menuItems} />
+          <Menu mode="inline" selectedKeys={[selectedKey]} defaultOpenKeys={["settings-group"]} items={getMenuItems(dict)} />
         </Sider>
 
         <Layout>
           <Header>
             <div className="flex items-center justify-between">
-              <Typography.Text className="!text-slate-600">后台管理系统</Typography.Text>
+              <Typography.Text className="!text-slate-600">{dict.admin.backendSystem}</Typography.Text>
               <Space>
                 <Space>
                   <Avatar icon={<UserOutlined />} />
@@ -192,7 +201,7 @@ export function AdminShell({ children }: AdminShellProps) {
                   </div>
                 </Space>
                 <Link href="/">
-                  <Button type="default">返回前台</Button>
+                  <Button type="default">{dict.admin.backToFront}</Button>
                 </Link>
                 <Button
                   danger
@@ -201,7 +210,7 @@ export function AdminShell({ children }: AdminShellProps) {
                     await signOut({ callbackUrl: "/login" });
                   }}
                 >
-                  退出登录
+                  {dict.admin.logout}
                 </Button>
               </Space>
             </div>

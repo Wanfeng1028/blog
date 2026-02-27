@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { PostStatus } from "@prisma/client";
 import { toast } from "sonner";
 import { Button, Popconfirm, Space } from "antd";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 export function PostActions({ id, status }: { id: string; status: PostStatus }) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const dict = useDictionary();
 
   const togglePublish = (publish: boolean) => {
     startTransition(async () => {
@@ -22,10 +24,10 @@ export function PostActions({ id, status }: { id: string; status: PostStatus }) 
       });
       const result = await response.json();
       if (!response.ok || !result.ok) {
-        toast.error(result.message ?? "操作失败");
+        toast.error(result.message ?? dict.admin.operationFailed);
         return;
       }
-      toast.success(publish ? "文章已发布" : "文章已下线");
+      toast.success(publish ? dict.admin.postPublishedSuccess : dict.admin.postOfflineSuccess);
       router.refresh();
     });
   };
@@ -37,10 +39,10 @@ export function PostActions({ id, status }: { id: string; status: PostStatus }) 
       });
       const result = await response.json();
       if (!response.ok || !result.ok) {
-        toast.error(result.message ?? "删除失败");
+        toast.error(result.message ?? dict.admin.deleteFailed);
         return;
       }
-      toast.success("已删除");
+      toast.success(dict.admin.deletedSuccess);
       router.refresh();
     });
   };
@@ -48,20 +50,20 @@ export function PostActions({ id, status }: { id: string; status: PostStatus }) 
   return (
     <Space wrap>
       <Link href={`/admin/posts/${id}/edit`}>
-        <Button size="small">编辑</Button>
+        <Button size="small">{dict.admin.edit}</Button>
       </Link>
       {status !== "PUBLISHED" ? (
         <Button size="small" type="primary" loading={pending} onClick={() => togglePublish(true)}>
-          发布
+          {dict.admin.publish}
         </Button>
       ) : (
         <Button size="small" loading={pending} onClick={() => togglePublish(false)}>
-          下线
+          {dict.admin.takeOffline}
         </Button>
       )}
-      <Popconfirm title="确认删除这篇文章吗？" okText="确认" cancelText="取消" onConfirm={remove}>
+      <Popconfirm title={dict.admin.confirmDeletePost} okText={dict.admin.confirm} cancelText={dict.admin.cancel} onConfirm={remove}>
         <Button danger size="small" loading={pending}>
-          删除
+          {dict.admin.delete}
         </Button>
       </Popconfirm>
     </Space>
