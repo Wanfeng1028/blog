@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 type CaptchaPayload = {
   captchaId: string;
@@ -34,6 +35,7 @@ export function LoginForm() {
   const [captcha, setCaptcha] = useState<CaptchaPayload | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const dict = useDictionary();
 
   const loadCaptcha = async () => {
     const response = await fetch("/api/auth/captcha", { cache: "no-store" });
@@ -62,7 +64,7 @@ export function LoginForm() {
     setErrorMessage("");
     if (!captcha?.captchaId) return;
     if (!email.trim() || !password || !captchaAnswer.trim()) {
-      setErrorMessage("请完整填写邮箱、密码和验证码。");
+      setErrorMessage(dict.auth.loginFormErrorEmpty);
       return;
     }
 
@@ -81,14 +83,14 @@ export function LoginForm() {
       });
 
       if (!result || result.error) {
-        setErrorMessage("登录失败：账号、密码或验证码错误，或邮箱未激活。");
-        toast.error("登录失败");
+        setErrorMessage(dict.auth.loginFormErrorInvalid);
+        toast.error(dict.auth.loginFormErrorInvalid);
         await loadCaptcha();
         setIsLoading(false);
         return;
       }
 
-      toast.success("登录成功，正在跳转...");
+      toast.success(dict.auth.loginSuccess);
       // Force a hard navigation — this is the most reliable redirect method
       window.location.replace(target);
     } catch (error) {
@@ -100,15 +102,15 @@ export function LoginForm() {
   return (
     <form className="auth-card w-full max-w-md space-y-4 rounded-2xl p-6 text-white" onSubmit={onSubmit}>
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">登录晚风博客</h1>
-        <p className="text-sm text-slate-200/85">欢迎访问 wanfeng 的博客</p>
+        <h1 className="text-2xl font-semibold">{dict.auth.loginTitle}</h1>
+        <p className="text-sm text-slate-200/85">{dict.auth.loginSubtitle}</p>
       </div>
 
       <Input
         autoComplete="email"
         className="border-sky-200/30 bg-white/90 text-zinc-900"
         onChange={(event) => setEmail(event.target.value)}
-        placeholder="邮箱"
+        placeholder={dict.auth.email}
         required
         type="email"
         value={email}
@@ -119,7 +121,7 @@ export function LoginForm() {
           className="border-sky-200/30 bg-white/90 pr-10 text-zinc-900"
           minLength={8}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="密码"
+          placeholder={dict.auth.password}
           required
           type={showPassword ? "text" : "password"}
           value={password}
@@ -148,24 +150,24 @@ export function LoginForm() {
           <Input
             className="border-sky-200/30 bg-white/90 text-zinc-900"
             onChange={(event) => setCaptchaAnswer(event.target.value)}
-            placeholder="验证码"
+            placeholder={dict.auth.captcha}
             value={captchaAnswer}
           />
         </div>
-        <p className="text-xs text-slate-200/80">点击验证码图片可刷新</p>
+        <p className="text-xs text-slate-200/80">{dict.auth.captchaHint}</p>
       </div>
 
       {errorMessage ? <p className="text-sm text-rose-300">{errorMessage}</p> : null}
       <Button className="w-full" loading={isLoading} type="submit">
-        立即登录
+        {dict.auth.loginSubmit}
       </Button>
 
       <div className="flex items-center justify-between text-sm text-slate-100/90">
         <Link className="hover:underline" href="/register">
-          还没有账号？去注册
+          {dict.auth.noAccount}
         </Link>
         <Link className="hover:underline" href="/forgot-password">
-          忘记密码
+          {dict.auth.forgotPassword}
         </Link>
       </div>
     </form>

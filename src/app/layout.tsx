@@ -5,6 +5,8 @@ import { Providers } from "@/components/providers";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 import { Inter, JetBrains_Mono, Noto_Sans_SC } from "next/font/google";
+import { cookies } from "next/headers";
+import { getDictionary, type SupportedLang } from "@/features/i18n/get-dictionary";
 
 // 主 UI / 正文字体（Latin + 数字）
 const sansFont = Inter({
@@ -50,11 +52,15 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{ children: ReactNode }>) {
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("site_lang")?.value || "zh") as SupportedLang;
+  const dictionary = await getDictionary(lang);
+
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang={lang === "zh" ? "zh-CN" : "en"} suppressHydrationWarning>
       {/* 霞鹜文楷 Screen 版 — 专为屏幕阅读优化的文艺中文字体 */}
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
@@ -64,7 +70,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${sansFont.variable} ${monoFont.variable} ${chineseFont.variable} min-h-dvh`}>
-        <Providers>
+        <Providers lang={lang} dictionary={dictionary}>
           <AppChrome>{children}</AppChrome>
         </Providers>
       </body>

@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -5,8 +7,12 @@ import { Eye, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { PostPreview } from "@/features/blog/server/types";
+import { useLang } from "@/features/i18n/lang-context";
 
 export function PostCard({ post }: { post: PostPreview }) {
+  const { lang, dictionary } = useLang();
+  const d = dictionary!;
+
   return (
     <Card className="overflow-hidden">
       {post.coverImage && (
@@ -16,7 +22,7 @@ export function PostCard({ post }: { post: PostPreview }) {
       )}
       <CardHeader>
         <p className="text-xs text-muted">
-          {post.publishedAt ? format(post.publishedAt, "yyyy-MM-dd") : "未发布"} · {post.readingTime} min read
+          {post.publishedAt ? format(post.publishedAt, "yyyy-MM-dd") : d.blog.notPublished} · {post.readingTime} {d.blog.minRead}
         </p>
         <Link className="text-xl font-semibold hover:text-primary" href={`/blog/${post.slug}`}>
           {post.title}

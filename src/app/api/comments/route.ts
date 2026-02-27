@@ -18,9 +18,12 @@ import { sendMail } from "@/lib/auth/mailer";
 import { getSiteSettings } from "@/lib/site-settings";
 
 const createCommentSchema = z.object({
-  postId: z.string().cuid(),
+  postId: z.string().cuid().optional(),
+  momentId: z.string().cuid().optional(),
   parentId: z.string().cuid().optional().nullable(),
   content: z.string().min(2).max(1000)
+}).refine(data => data.postId || data.momentId, {
+  message: "Either postId or momentId is required",
 });
 
 const createMessageSchema = z.object({
@@ -107,11 +110,17 @@ export async function GET(request: NextRequest) {
     }
 
     const postId = request.nextUrl.searchParams.get("postId");
-    if (!postId) return apiError("postId is required", 400);
+    const momentId = request.nextUrl.searchParams.get("momentId");
+    
+    if (!postId && !momentId) return apiError("postId or momentId is required", 400);
+
+    const whereCondition: any = { status: "VISIBLE", parentId: null };
+    if (postId) whereCondition.postId = postId;
+    if (momentId) whereCondition.momentId = momentId;
 
     // Return comments with nested replies (2-level: top-level + replies)
     const comments = await db.comment.findMany({
-      where: { postId, status: "VISIBLE", parentId: null },
+      where: whereCondition,
       select: {
         id: true,
         content: true,
@@ -283,7 +292,8 @@ export async function POST(request: NextRequest) {
 
     const comment = await db.comment.create({
       data: {
-        postId: payload.postId,
+        postId: payload.postId ?? null,
+        momentId: payload.momentId ?? null,
         userId: session.user.id,
         parentId: payload.parentId ?? null,
         content: cleanContent,

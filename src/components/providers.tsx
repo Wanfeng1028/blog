@@ -11,15 +11,19 @@ import NextTopLoader from "nextjs-toploader";
 
 export function Providers({
   children,
-  session
+  session,
+  lang,
+  dictionary
 }: {
   children: ReactNode;
   session?: Session | null;
+  lang: import("@/features/i18n/get-dictionary").SupportedLang;
+  dictionary: import("@/features/i18n/get-dictionary").Dictionary;
 }) {
   return (
     <SessionProvider refetchOnWindowFocus={false} refetchWhenOffline={false} session={session}>
       <ThemeProvider>
-        <LangProvider>
+        <LangProvider lang={lang} dictionary={dictionary}>
           <NextTopLoader
             color="#0ea5e9"
             initialPosition={0.08}

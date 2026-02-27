@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bookmark, Heart } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "sonner";
+import { useLang } from "@/features/i18n/lang-context";
 
 type State = {
   liked: boolean;
@@ -17,6 +18,8 @@ type Props = {
 };
 
 export function PostInteractionBar({ postId, initialLikes = 0 }: Props) {
+  const { dictionary } = useLang();
+  const d = dictionary!;
   const [state, setState] = useState<State>({
     liked: false,
     favorited: false,
@@ -73,9 +76,9 @@ export function PostInteractionBar({ postId, initialLikes = 0 }: Props) {
         if (!res.ok || !result.ok) {
           setState(prevState);
           if (res.status === 401) {
-            toast.error("请先登录后再点赞");
+            toast.error(d.blogPost.loginToLike);
           } else {
-            toast.error(result.message ?? "操作失败，请稍后重试");
+            toast.error(result.message ?? d.common.fail);
           }
           return;
         }
@@ -88,7 +91,7 @@ export function PostInteractionBar({ postId, initialLikes = 0 }: Props) {
       })
       .catch(() => {
         setState(prevState);
-        toast.error("网络异常，请稍后重试");
+        toast.error(d.common.fail);
       });
   };
 
@@ -112,9 +115,9 @@ export function PostInteractionBar({ postId, initialLikes = 0 }: Props) {
         if (!res.ok || !result.ok) {
           setState(prevState);
           if (res.status === 401) {
-            toast.error("请先登录后再收藏");
+            toast.error(d.blogPost.loginToFav);
           } else {
-            toast.error(result.message ?? "操作失败");
+            toast.error(result.message ?? d.common.fail);
           }
           return;
         }
@@ -123,7 +126,7 @@ export function PostInteractionBar({ postId, initialLikes = 0 }: Props) {
       })
       .catch(() => {
         setState(prevState);
-        toast.error("网络异常，请稍后重试");
+        toast.error(d.common.fail);
       });
   };
 
@@ -156,7 +159,7 @@ export function PostInteractionBar({ postId, initialLikes = 0 }: Props) {
         type="button"
       >
         <Bookmark className={cn("size-4 transition-transform duration-200", state.favorited ? "fill-current scale-110" : "")} />
-        <span>{state.favorited ? "已收藏" : "收藏"}</span>
+        <span>{state.favorited ? d.blogPost.favorited : d.blogPost.favorite}</span>
       </button>
     </div>
   );

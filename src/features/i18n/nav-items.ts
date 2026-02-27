@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { FileText, FolderKanban, Home, MessageSquare, UserRound, UsersRound } from "lucide-react";
+import { Coffee, FileText, FolderKanban, Home, MessageSquare, UserRound, UsersRound } from "lucide-react";
 
 type NavItemDef = {
   href: string;
@@ -58,6 +58,12 @@ export const navItemDefs: NavItemDef[] = [
         children: []
       }
     ]
+  },
+  {
+    href: "/moments",
+    labelZh: "碎碎念",
+    labelEn: "Moments",
+    icon: Coffee
   },
   {
     href: "/friends",

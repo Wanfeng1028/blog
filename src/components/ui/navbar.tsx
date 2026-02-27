@@ -81,7 +81,8 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data, status } = useSession();
-  const { lang, toggle: toggleLang } = useLang();
+  const { lang, dictionary, toggle: toggleLang } = useLang();
+  const d = dictionary!; // dictionary is guaranteed if used within LangProvider
   const isAdmin = data?.user?.role === "ADMIN";
   const isHome = pathname === "/";
 
@@ -210,30 +211,30 @@ export function Navbar() {
     if (item.href !== "/blog") return item.children;
     return [
       {
-        label: "全部文章",
+        label: d.nav.allPosts,
         children:
           recentPosts.length > 0
             ? recentPosts.map((post) => ({
-                href: `/blog/${post.slug}`,
-                label: post.title
-              }))
-            : [{ href: "/blog", label: "查看全部文章" }]
+              href: `/blog/${post.slug}`,
+              label: post.title
+            }))
+            : [{ href: "/blog", label: d.nav.viewAllPosts }]
       },
       {
-        label: "文章分类",
+        label: d.nav.categories,
         children:
           articleCategories.length > 0
             ? articleCategories.map((category) => ({
-                href: `/blog?category=${category.slug}`,
-                label: `${category.name} (${category.count})`
-              }))
-            : [{ href: "/blog", label: "查看所有分类" }]
+              href: `/blog?category=${category.slug}`,
+              label: `${category.name} (${category.count})`
+            }))
+            : [{ href: "/blog", label: d.nav.viewAllCategories }]
       }
     ];
   };
 
   const renderDesktopNodes = (nodes: NavNode[], pathPrefix: number[] = []) => (
-    <ul className="relative w-60 rounded-2xl border border-white/45 bg-[linear-gradient(180deg,rgba(191,219,254,0.4)_0%,rgba(239,246,255,0.52)_100%)] p-1.5 shadow-2xl backdrop-blur-xl">
+    <ul className="relative w-60 rounded-2xl border border-white/45 bg-[linear-gradient(180deg,rgba(191,219,254,0.4)_0%,rgba(239,246,255,0.52)_100%)] p-1.5 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.9)_0%,rgba(9,9,11,0.95)_50%,rgba(15,23,42,0.9)_100%)]">
       {nodes.map((node, index) => {
         const nodePath = [...pathPrefix, index];
         const key = `${pathKey(nodePath)}-${node.href ?? node.label}`;
@@ -242,7 +243,9 @@ export function Navbar() {
         const direction = submenuDirections[pathKey(nodePath)] ?? "right";
         const itemClass = cn(
           "flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm transition",
-          expanded ? "bg-white text-zinc-950" : "text-zinc-700 hover:bg-white/90 hover:text-zinc-950"
+          expanded
+            ? "bg-white text-zinc-950 dark:bg-white/10 dark:text-zinc-100"
+            : "text-zinc-700 hover:bg-white/90 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-white/5 dark:hover:text-zinc-100"
         );
 
         return (
@@ -444,7 +447,7 @@ export function Navbar() {
         );
 
         if (!response.ok) {
-          setSearchError("搜索服务暂时不可用，请稍后再试");
+          setSearchError(d.nav.noResults);
           return;
         }
 
@@ -452,12 +455,12 @@ export function Navbar() {
         if (result.ok) {
           setSearchItems(result.data.items ?? []);
         } else {
-          setSearchError("搜索服务暂时不可用，请稍后再试");
+          setSearchError(d.nav.noResults);
         }
       } catch (err) {
         // ③ 只有非 Abort 错误才显示报错提示
         if (controller.signal.aborted) return;
-        setSearchError("搜索服务暂时不可用，请稍后再试");
+        setSearchError(d.nav.noResults);
       } finally {
         if (!controller.signal.aborted) setSearchLoading(false);
       }
@@ -544,7 +547,7 @@ export function Navbar() {
         hidden && !searchOpen ? "-translate-y-full" : "translate-y-0",
         isHome
           ? "bg-transparent"
-          : "border-b border-white/40 bg-[linear-gradient(180deg,rgba(191,219,254,0.26)_0%,rgba(239,246,255,0.22)_55%,rgba(191,219,254,0.18)_100%)] backdrop-blur-xl"
+          : "border-b border-white/40 bg-[linear-gradient(180deg,rgba(191,219,254,0.26)_0%,rgba(239,246,255,0.22)_55%,rgba(191,219,254,0.18)_100%)] dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.45)_0%,rgba(9,9,11,0.55)_100%)] dark:border-white/10 backdrop-blur-xl"
       )}
     >
       <div className="flex h-16 w-full items-center justify-center gap-6 px-6">
@@ -616,6 +619,7 @@ export function Navbar() {
               >
                 {lang === "zh" ? "EN" : "中"}
               </button>
+              <ThemeToggle className="hover:bg-white/20" />
               <div className="relative" ref={searchRef}>
                 <button
                   aria-expanded={searchOpen}
@@ -628,7 +632,7 @@ export function Navbar() {
                   <Search className="size-4" />
                 </button>
                 {searchOpen ? (
-                  <div className="absolute right-0 top-full mt-2 w-[min(92vw,26rem)] rounded-2xl border border-white/35 bg-[linear-gradient(180deg,rgba(191,219,254,0.42)_0%,rgba(239,246,255,0.46)_50%,rgba(191,219,254,0.42)_100%)] p-3 shadow-2xl backdrop-blur-xl">
+                  <div className="absolute right-0 top-full mt-2 w-[min(92vw,26rem)] rounded-2xl border border-white/35 bg-[linear-gradient(180deg,rgba(191,219,254,0.42)_0%,rgba(239,246,255,0.46)_50%,rgba(191,219,254,0.42)_100%)] p-3 shadow-2xl backdrop-blur-xl dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.9)_0%,rgba(9,9,11,0.95)_50%,rgba(15,23,42,0.9)_100%)] dark:border-white/10">
                     {/* ── 输入框（右侧内嵌 spinner） ── */}
                     <form
                       onSubmit={(event) => {
@@ -642,9 +646,9 @@ export function Navbar() {
                       <div className="relative">
                         <input
                           autoFocus
-                          className="w-full rounded-xl border border-white/40 bg-white/70 px-3 py-2 pr-9 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
+                          className="w-full rounded-xl border border-white/40 bg-white/70 px-3 py-2 pr-9 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40 dark:border-white/10 dark:bg-zinc-800/80 dark:text-white dark:placeholder:text-zinc-400"
                           onChange={(event) => setKeyword(event.target.value)}
-                          placeholder="搜索站内文章（至少 2 个字符）"
+                          placeholder={d.nav.searchPlaceholder}
                           value={keyword}
                         />
                         {searchLoading ? (
@@ -662,7 +666,7 @@ export function Navbar() {
 
                       {/* empty 状态 */}
                       {!searchLoading && !searchError && keyword.trim().length >= 2 && searchItems.length === 0 ? (
-                        <p className="px-1 py-2 text-sm text-white/70">未找到相关文章</p>
+                        <p className="px-1 py-2 text-sm text-white/70">{d.nav.noResults}</p>
                       ) : null}
 
                       {/* 结果列表 */}
@@ -670,7 +674,7 @@ export function Navbar() {
                         <div className="space-y-2">
                           {searchItems.map((item) => (
                             <Link
-                              className="block rounded-xl border border-white/30 bg-white/70 px-3 py-2 text-zinc-900 transition hover:bg-white/85"
+                              className="block rounded-xl border border-white/30 bg-white/70 px-3 py-2 text-zinc-900 transition hover:bg-white/85 dark:border-white/10 dark:bg-zinc-800/60 dark:text-white dark:hover:bg-zinc-800/90"
                               href={`/blog/${item.slug}`}
                               key={item.id}
                               onClick={() => setSearchOpen(false)}
@@ -687,7 +691,7 @@ export function Navbar() {
               </div>
 
               <form
-                className="flex items-center gap-1 rounded-full border border-white/35 bg-white/10 px-2 py-1 backdrop-blur-md"
+                className="flex items-center gap-1 rounded-full border border-white/35 bg-white/10 px-2 py-1 backdrop-blur-md dark:border-white/10 dark:bg-white/5"
                 onSubmit={submitWebSearch}
               >
                 <Globe className="size-3.5 text-white/90" />
@@ -707,54 +711,54 @@ export function Navbar() {
                   </option>
                 </select>
                 <input
-                  className="w-20 bg-transparent text-xs text-white placeholder:text-white/65 outline-none"
+                  className="w-20 bg-transparent text-xs text-white placeholder:text-white/65 outline-none dark:text-zinc-100 dark:placeholder:text-zinc-400"
                   onChange={(event) => setWebKeyword(event.target.value)}
-                  placeholder="网页搜索..."
+                  placeholder={d.nav.webSearchPlaceholder}
                   value={webKeyword}
                 />
               </form>
               {status === "loading" ? (
                 <div className="ml-1 h-8 w-36 animate-pulse rounded-full bg-white/20" />
               ) : !data?.user ? (
-                <div className="ml-1 flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-2 py-1 backdrop-blur-md">
-                  <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20" size="sm" variant="outline">
-                    <Link href="/login">登录</Link>
+                <div className="ml-1 flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-2 py-1 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+                  <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100" size="sm" variant="outline">
+                    <Link href="/login">{d.common.login}</Link>
                   </Button>
-                  <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20" size="sm" variant="outline">
-                    <Link href="/register">注册</Link>
+                  <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100" size="sm" variant="outline">
+                    <Link href="/register">{d.common.register}</Link>
                   </Button>
                 </div>
               ) : (
-                <div className="ml-1 flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-2 py-1 backdrop-blur-md">
+                <div className="ml-1 flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-2 py-1 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
                   {isAdmin ? (
-                    <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20" size="sm" variant="outline">
-                      <Link href="/admin">后台管理</Link>
+                    <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100" size="sm" variant="outline">
+                      <Link href="/admin">{d.common.admin}</Link>
                     </Button>
                   ) : (
-                    <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20" size="sm" variant="outline">
-                      <Link href="/dashboard">个人中心</Link>
+                    <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100" size="sm" variant="outline">
+                      <Link href="/dashboard">{d.common.dashboard}</Link>
                     </Button>
                   )}
-                  <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20" size="sm" variant="outline">
-                    <Link href="/security">账号安全</Link>
+                  <Button asChild className="border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100" size="sm" variant="outline">
+                    <Link href="/security">{d.common.security}</Link>
                   </Button>
                   <Button
-                    className="border-white/40 bg-white/10 text-white hover:bg-white/20"
+                    className="border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100"
                     loading={isSigningOut}
                     onClick={handleSignOut}
                     size="sm"
                     variant="outline"
                   >
-                    退出登录
+                    {d.common.logout}
                   </Button>
                 </div>
               )}
             </div>
           ) : (
             <>
-              <ThemeToggle />
+              <ThemeToggle className="text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/10" />
               <button
-                className="rounded-md border border-border/60 bg-transparent px-2 py-1 text-xs font-medium text-text transition hover:bg-secondary"
+                className="rounded-md border border-border/60 bg-transparent px-2 py-1 text-xs font-medium text-text transition hover:bg-secondary dark:border-white/20 dark:hover:bg-white/10"
                 onClick={toggleLang}
                 title={lang === "zh" ? "Switch to English" : "切换到中文"}
                 type="button"
@@ -763,7 +767,7 @@ export function Navbar() {
               </button>
               {isAdmin ? (
                 <Button asChild size="sm" variant="outline">
-                  <Link href="/admin">后台管理</Link>
+                  <Link href="/admin">{d.common.admin}</Link>
                 </Button>
               ) : null}
               {status === "loading" ? (
@@ -773,21 +777,21 @@ export function Navbar() {
                   {data.user.role === "USER" ? (
                     <Button asChild size="sm" variant="outline">
                       <Link href="/dashboard" onMouseEnter={() => prefetchHref("/dashboard")}>
-                        个人中心
+                        {d.common.dashboard}
                       </Link>
                     </Button>
                   ) : null}
                   <Button asChild size="sm" variant="outline">
-                    <Link href="/security">账号安全</Link>
+                    <Link href="/security">{d.common.security}</Link>
                   </Button>
                   <Button loading={isSigningOut} onClick={handleSignOut} size="sm" variant="ghost">
-                    退出登录
+                    {d.common.logout}
                   </Button>
                 </div>
               ) : (
                 <Button asChild size="sm">
                   <Link href="/login" onMouseEnter={() => prefetchHref("/login")}>
-                    登录
+                    {d.common.login}
                   </Link>
                 </Button>
               )}
@@ -807,7 +811,7 @@ export function Navbar() {
       <div
         className={cn(
           "overflow-hidden transition-all md:hidden",
-          isHome ? "border-t border-white/20 bg-black/45 backdrop-blur" : "border-t border-border",
+          isHome ? "border-t border-white/20 bg-black/45 backdrop-blur" : "border-t border-border bg-white dark:bg-zinc-950/95",
           open ? "max-h-96" : "max-h-0"
         )}
       >
@@ -828,7 +832,7 @@ export function Navbar() {
                     href={item.href}
                     onClick={() => setOpen(false)}
                   >
-                    进入{item.label}
+                    {d.common.enter}{item.label}
                   </Link>
                   {children ? <div className="space-y-1">{renderMobileNodes(children)}</div> : null}
                 </div>
@@ -841,7 +845,7 @@ export function Navbar() {
               <ThemeToggle />
               {isAdmin ? (
                 <Button asChild size="sm" variant="outline">
-                  <Link href="/admin">后台管理</Link>
+                  <Link href="/admin">{d.common.admin}</Link>
                 </Button>
               ) : null}
               {status === "loading" ? (
@@ -851,21 +855,21 @@ export function Navbar() {
                   {data.user.role === "USER" ? (
                     <Button asChild size="sm" variant="outline">
                       <Link href="/dashboard" onMouseEnter={() => prefetchHref("/dashboard")}>
-                        Dashboard
+                        {d.common.dashboard}
                       </Link>
                     </Button>
                   ) : null}
                   <Button asChild size="sm" variant="outline">
-                    <Link href="/security">账号安全</Link>
+                    <Link href="/security">{d.common.security}</Link>
                   </Button>
                   <Button loading={isSigningOut} onClick={handleSignOut} size="sm" variant="ghost">
-                    退出登录
+                    {d.common.logout}
                   </Button>
                 </div>
               ) : (
                 <Button asChild size="sm">
                   <Link href="/login" onMouseEnter={() => prefetchHref("/login")}>
-                    登录
+                    {d.common.login}
                   </Link>
                 </Button>
               )}

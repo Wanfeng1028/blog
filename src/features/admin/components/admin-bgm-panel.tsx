@@ -14,6 +14,7 @@ import {
   message
 } from "antd";
 import { CloudUploadOutlined, DeleteOutlined, PauseCircleOutlined, PlayCircleOutlined } from "@ant-design/icons";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 export type BgmRecord = {
   id: string;
@@ -31,6 +32,7 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [activating, setActivating] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const dict = useDictionary();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -61,11 +63,11 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
     const allowed = ["mp3", "wav", "ogg", "flac", "aac", "m4a"];
     if (!allowed.includes(ext)) {
-      message.error("不支持的格式，仅允许 MP3 / WAV / OGG / FLAC / AAC / M4A");
+      message.error(dict.admin.formatNotSupported);
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      message.error("文件大小不能超过 10 MB");
+      message.error(dict.admin.fileSizeExceeded);
       return;
     }
 
@@ -82,19 +84,19 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
       try {
         const result = JSON.parse(xhr.responseText);
         if (result.ok) {
-          message.success("✅ 上传成功");
+          message.success(dict.admin.uploadSuccess);
           refreshRecords();
         } else {
-          message.error(result.message ?? "上传失败");
+          message.error(result.message ?? dict.admin.uploadFailed);
         }
       } catch {
-        message.error("上传失败，服务器响应异常");
+        message.error(dict.admin.uploadServerError);
       }
     });
     xhr.addEventListener("error", () => {
       setUploading(false);
       setUploadProgress(0);
-      message.error("网络错误，上传失败");
+      message.error(dict.admin.uploadNetworkError);
     });
 
     setUploading(true);
@@ -123,9 +125,9 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
     try {
       const res = await fetch(`/api/admin/bgm/${id}`, { method: "PATCH" });
       const result = await res.json();
-      if (!res.ok || !result.ok) { message.error(result.message ?? "切换失败"); return; }
+      if (!res.ok || !result.ok) { message.error(result.message ?? dict.admin.switchFailed); return; }
       setRecords((prev) => prev.map((r) => ({ ...r, is_active: r.id === id })));
-      message.success("🎵 已设为当前 BGM，前台即刻生效！");
+      message.success(dict.admin.setBgmSuccess);
     } finally {
       setActivating(null);
     }
@@ -136,10 +138,10 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
     try {
       const res = await fetch(`/api/admin/bgm/${id}`, { method: "DELETE" });
       const result = await res.json();
-      if (!res.ok || !result.ok) { message.error(result.message ?? "删除失败"); return; }
+      if (!res.ok || !result.ok) { message.error(result.message ?? dict.admin.bgmDeleteFailed); return; }
       if (playingId === id) stopPreview();
       await refreshRecords();
-      message.success("已删除");
+      message.success(dict.admin.bgmDeleted);
     } finally {
       setDeleting(null);
     }
@@ -150,7 +152,7 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
     stopPreview();
     const audio = new Audio(row.file_path);
     audio.addEventListener("ended", () => setPlayingId(null));
-    audio.play().catch(() => message.error("播放失败，请检查文件路径"));
+    audio.play().catch(() => message.error(dict.admin.playFailed));
     audioRef.current = audio;
     setPlayingId(row.id);
   };
@@ -159,60 +161,60 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
 
   const columns = [
     {
-      title: "文件名",
+      title: dict.admin.fileName,
       dataIndex: "original_name",
       key: "name",
       render: (name: string, row: BgmRecord) => (
         <Space>
-          {row.is_active && <Tag color="success">当前使用中</Tag>}
+          {row.is_active && <Tag color="success">{dict.admin.inUse}</Tag>}
           <span className="font-medium">{name}</span>
         </Space>
       )
     },
     {
-      title: "上传时间",
+      title: dict.admin.uploadTime,
       dataIndex: "upload_time",
       key: "time",
       width: 170,
       render: (v: string) => new Date(v).toLocaleString("zh-CN")
     },
     {
-      title: "操作",
+      title: dict.admin.actions,
       key: "actions",
       width: 300,
       render: (_: unknown, row: BgmRecord) => (
         <Space size={6}>
           {!row.is_active && (
-            <Tooltip title="设为首页背景音乐并立即生效">
+            <Tooltip title={dict.admin.setAsHomeBgmDesc}>
               <Button
                 size="small"
                 type="primary"
                 loading={activating === row.id}
                 onClick={() => setActive(row.id)}
               >
-                设为首页 BGM
+                {dict.admin.setAsHomeBgm}
               </Button>
             </Tooltip>
           )}
-          <Tooltip title={playingId === row.id ? "停止预览" : "试听"}>
+          <Tooltip title={playingId === row.id ? dict.admin.stopPreviewText : dict.admin.preview}>
             <Button
               size="small"
               icon={playingId === row.id ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
               onClick={() => togglePreview(row)}
             >
-              {playingId === row.id ? "停止" : "预览"}
+              {playingId === row.id ? dict.admin.stopBtn : dict.admin.previewBtn}
             </Button>
           </Tooltip>
           <Popconfirm
-            title="确认删除？"
-            description="将同时删除服务器文件，无法恢复。"
-            okText="删除"
-            cancelText="取消"
+            title={dict.admin.confirmDeleteBgm}
+            description={dict.admin.confirmDeleteBgmDesc}
+            okText={dict.admin.delete}
+            cancelText={dict.admin.cancel}
             okButtonProps={{ danger: true }}
             onConfirm={() => deleteRecord(row.id)}
           >
             <Button danger size="small" icon={<DeleteOutlined />} loading={deleting === row.id}>
-              删除
+              {dict.admin.delete}
             </Button>
           </Popconfirm>
         </Space>
@@ -227,8 +229,8 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
       className="wanfeng-admin-panel"
       title={
         <Space>
-          <span>🎵 BGM 音乐管理</span>
-          <Tag color="blue">上传后可一键切换为首页背景音乐</Tag>
+          <span>{dict.admin.bgmManage}</span>
+          <Tag color="blue">{dict.admin.bgmManageDesc}</Tag>
         </Space>
       }
     >
@@ -258,7 +260,7 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
         {uploading ? (
           <div className="w-full max-w-xs text-center">
             <CloudUploadOutlined className="mb-3 text-4xl text-blue-500" />
-            <Typography.Text className="block">正在上传中...</Typography.Text>
+            <Typography.Text className="block">{dict.admin.uploading}</Typography.Text>
             <Progress
               percent={uploadProgress}
               status="active"
@@ -270,17 +272,17 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
           <div className="text-center">
             <CloudUploadOutlined className="mb-3 text-5xl text-gray-400" />
             <Typography.Text className="block text-base text-gray-600">
-              点击选择文件，或将音乐文件拖拽到此区域
+              {dict.admin.uploadPrompt}
             </Typography.Text>
             <Typography.Text type="secondary" className="mt-1 block text-sm">
-              支持 MP3 · WAV · OGG · FLAC · AAC · M4A，单文件最大 10 MB
+              {dict.admin.uploadSupportInfo}
             </Typography.Text>
             <Button
               icon={<CloudUploadOutlined />}
               className="mt-4"
               onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
             >
-              选择音乐文件
+              {dict.admin.selectMusicFile}
             </Button>
           </div>
         )}
@@ -289,14 +291,14 @@ export function AdminBgmPanel({ initialRecords }: { initialRecords: BgmRecord[] 
       {/* ─── Record List ─── */}
       {records.length === 0 ? (
         <div className="py-10 text-center text-gray-400">
-          暂无已上传的音乐，请先使用上方区域上传 BGM 文件
+          {dict.admin.noUploadedMusic}
         </div>
       ) : (
         <Table<BgmRecord>
           rowKey="id"
           dataSource={records}
           columns={columns}
-          pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 首` }}
+          pagination={{ pageSize: 8, showTotal: (t) => dict.admin.totalSongs.replace("{total}", String(t)) }}
           rowClassName={(row) => (row.is_active ? "ant-table-row-selected" : "")}
           size="middle"
         />

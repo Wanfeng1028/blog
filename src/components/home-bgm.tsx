@@ -148,9 +148,8 @@ export function HomeBgm() {
       <div className="fixed bottom-5 right-5 z-[70] flex items-center gap-2">
         <button
           aria-label="back to top"
-          className={`back-to-top relative flex size-9 items-center justify-center overflow-hidden rounded-full border border-white/40 bg-black/30 text-white backdrop-blur transition-all duration-300 hover:bg-black/50 ${
-            showTop ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"
-          }`}
+          className={`back-to-top relative flex size-9 items-center justify-center overflow-hidden rounded-full border border-white/40 bg-white/10 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 dark:border-white/10 dark:bg-white/5 ${showTop ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"
+            }`}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           type="button"
         >
@@ -158,7 +157,7 @@ export function HomeBgm() {
         </button>
         <button
           aria-label="next song"
-          className="rounded-full border border-white/40 bg-black/30 p-2 text-white backdrop-blur transition hover:bg-black/45"
+          className="rounded-full border border-white/40 bg-white/10 p-2 text-white backdrop-blur-md transition hover:bg-white/20 dark:border-white/10 dark:bg-white/5"
           onClick={nextSong}
           title={`下一曲 (${songIndex + 1}/${SONGS.length})`}
           type="button"
@@ -166,7 +165,7 @@ export function HomeBgm() {
           <SkipForward className="size-4" />
         </button>
         <button
-          className="rounded-full border border-white/40 bg-black/30 px-3 py-2 text-xs text-white backdrop-blur transition hover:bg-black/45"
+          className="rounded-full border border-white/40 bg-white/10 px-3 py-2 text-xs text-white backdrop-blur-md transition hover:bg-white/20 dark:border-white/10 dark:bg-white/5"
           onClick={toggle}
           type="button"
         >

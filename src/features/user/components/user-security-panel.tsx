@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, Card, Form, Input, Space, Table, Tag, message } from "antd";
+import { useLang } from "@/features/i18n/lang-context";
 
 type EventRow = {
   id: string;
@@ -13,10 +14,12 @@ type EventRow = {
 
 export function UserSecurityPanel({ events }: { events: EventRow[] }) {
   const [loading, setLoading] = useState(false);
+  const { lang, dictionary } = useLang();
+  const dict = dictionary!;
 
   const changePassword = async (values: { currentPassword: string; newPassword: string; confirmPassword: string }) => {
     if (values.newPassword !== values.confirmPassword) {
-      message.error("两次输入的新密码不一致");
+      message.error(dict.userDashboard.passwordMismatch);
       return;
     }
     setLoading(true);
@@ -28,10 +31,10 @@ export function UserSecurityPanel({ events }: { events: EventRow[] }) {
       });
       const result = await response.json();
       if (!response.ok || !result.ok) {
-        message.error(result.message ?? "修改密码失败");
+        message.error(result.message ?? dict.userDashboard.updatePasswordFail);
         return;
       }
-      message.success("密码修改成功");
+      message.success(dict.userDashboard.updatePasswordSuccess);
     } finally {
       setLoading(false);
     }
@@ -39,48 +42,48 @@ export function UserSecurityPanel({ events }: { events: EventRow[] }) {
 
   return (
     <Space orientation="vertical" size={16} className="w-full">
-      <Card className="wanfeng-user-panel" title="修改密码">
+      <Card className="wanfeng-user-panel" title={dict.userDashboard.changePassword}>
         <Form layout="vertical" onFinish={changePassword}>
-          <Form.Item label="当前密码" name="currentPassword" rules={[{ required: true, message: "请输入当前密码" }]}>
+          <Form.Item label={dict.userDashboard.currentPassword} name="currentPassword" rules={[{ required: true, message: dict.userDashboard.currentPasswordRequired }]}>
             <Input.Password />
           </Form.Item>
           <Form.Item
-            label="新密码"
+            label={dict.userDashboard.newPassword2}
             name="newPassword"
-            rules={[{ required: true, message: "请输入新密码" }, { min: 8, message: "至少 8 位" }]}
+            rules={[{ required: true, message: dict.userDashboard.newPasswordRequired }, { min: 8, message: dict.userDashboard.passwordMinLength }]}
           >
             <Input.Password />
           </Form.Item>
-          <Form.Item label="确认新密码" name="confirmPassword" rules={[{ required: true, message: "请再次输入新密码" }]}>
+          <Form.Item label={dict.userDashboard.confirmNewPassword2} name="confirmPassword" rules={[{ required: true, message: dict.userDashboard.confirmNewPasswordRequired }]}>
             <Input.Password />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading}>
-              更新密码
+              {dict.userDashboard.updatePassword}
             </Button>
           </Form.Item>
         </Form>
       </Card>
 
-      <Card className="wanfeng-user-panel" title="最近登录日志">
+      <Card className="wanfeng-user-panel" title={dict.userDashboard.recentLoginLogs}>
         <Table
           rowKey="id"
           pagination={{ pageSize: 10 }}
           dataSource={events}
           columns={[
-            { title: "事件", dataIndex: "eventType", key: "eventType" },
+            { title: dict.userDashboard.event, dataIndex: "eventType", key: "eventType" },
             {
-              title: "状态",
+              title: dict.userDashboard.status,
               dataIndex: "success",
               key: "success",
-              render: (value: boolean) => <Tag color={value ? "success" : "error"}>{value ? "成功" : "失败"}</Tag>
+              render: (value: boolean) => <Tag color={value ? "success" : "error"}>{value ? dict.userDashboard.success : dict.userDashboard.fail}</Tag>
             },
-            { title: "IP", dataIndex: "ip", key: "ip", render: (value: string | null) => value ?? "-" },
+            { title: dict.userDashboard.ip, dataIndex: "ip", key: "ip", render: (value: string | null) => value ?? "-" },
             {
-              title: "时间",
+              title: dict.userDashboard.time,
               dataIndex: "createdAt",
               key: "createdAt",
-              render: (value: string) => new Date(value).toLocaleString()
+              render: (value: string) => new Date(value).toLocaleString(lang === "zh" ? "zh-CN" : "en-US")
             }
           ]}
         />

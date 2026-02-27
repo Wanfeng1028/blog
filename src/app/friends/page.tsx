@@ -2,11 +2,19 @@ import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import { FriendLinksSection } from "@/features/blog/components/friend-links-section";
 import { listFriendLinks } from "@/lib/friend-links";
+import { cookies } from "next/headers";
+import { getDictionary, type SupportedLang } from "@/features/i18n/get-dictionary";
 
-export const metadata: Metadata = {
-    title: "友链",
-    description: "朋友们的网站链接"
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const cookieStore = await cookies();
+    const lang = (cookieStore.get("site_lang")?.value || "zh") as SupportedLang;
+    const d = await getDictionary(lang);
+
+    return {
+        title: d.friends.title,
+        description: d.friends.metaDescription
+    };
+}
 
 export const revalidate = 120;
 

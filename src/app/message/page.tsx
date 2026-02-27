@@ -2,11 +2,19 @@ import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import { MessageBoardSection } from "@/features/blog/components/message-board-section";
 import { listMessages } from "@/lib/message-board";
+import { cookies } from "next/headers";
+import { getDictionary, type SupportedLang } from "@/features/i18n/get-dictionary";
 
-export const metadata: Metadata = {
-    title: "留言板",
-    description: "给我留言，分享你的想法"
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const cookieStore = await cookies();
+    const lang = (cookieStore.get("site_lang")?.value || "zh") as SupportedLang;
+    const d = await getDictionary(lang);
+
+    return {
+        title: d.message.title,
+        description: d.message.metaDescription
+    };
+}
 
 export const revalidate = 120;
 

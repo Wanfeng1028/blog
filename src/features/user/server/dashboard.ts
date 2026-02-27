@@ -86,8 +86,8 @@ async function getRecentInteractionsUncached(userId: string, limit = 12): Promis
       id: `comment:${item.id}`,
       type: "comment" as const,
       at: item.createdAt.toISOString(),
-      title: item.post.title,
-      slug: item.post.slug,
+      title: item.post?.title ?? "Moment",
+      slug: item.post?.slug ?? "",
       description: item.content
     })),
     ...favorites.map((item) => ({

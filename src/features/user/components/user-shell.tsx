@@ -8,14 +8,15 @@ import { useEffect, useTransition, type ReactNode } from "react";
 import { FileTextOutlined, LockOutlined, LogoutOutlined, StarOutlined, UserOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Avatar, Button, Layout, Menu, Space } from "antd";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 const { Header, Sider, Content } = Layout;
 
-const items: MenuProps["items"] = [
-  { key: "/dashboard", icon: <StarOutlined />, label: <Link href="/dashboard">用户概览</Link> },
-  { key: "/dashboard/profile", icon: <UserOutlined />, label: <Link href="/dashboard/profile">个人资料</Link> },
-  { key: "/dashboard/interactions", icon: <FileTextOutlined />, label: <Link href="/dashboard/interactions">互动记录</Link> },
-  { key: "/dashboard/security", icon: <LockOutlined />, label: <Link href="/dashboard/security">账号安全</Link> }
+const getItems = (dict: ReturnType<typeof useDictionary>): MenuProps["items"] => [
+  { key: "/dashboard", icon: <StarOutlined />, label: <Link href="/dashboard">{dict.userDashboard.overview}</Link> },
+  { key: "/dashboard/profile", icon: <UserOutlined />, label: <Link href="/dashboard/profile">{dict.userDashboard.profile}</Link> },
+  { key: "/dashboard/interactions", icon: <FileTextOutlined />, label: <Link href="/dashboard/interactions">{dict.userDashboard.interactions}</Link> },
+  { key: "/dashboard/security", icon: <LockOutlined />, label: <Link href="/dashboard/security">{dict.userDashboard.security}</Link> }
 ];
 
 function resolveSelectedKey(pathname: string) {
@@ -31,6 +32,7 @@ export function UserShell({ children }: { children: ReactNode }) {
   const selectedKey = resolveSelectedKey(pathname);
   const { data } = useSession();
   const [isSigningOut, startSignOutTransition] = useTransition();
+  const dict = useDictionary();
 
   useEffect(() => {
     const routes = ["/dashboard", "/dashboard/profile", "/dashboard/interactions", "/dashboard/security"];
@@ -108,31 +110,31 @@ export function UserShell({ children }: { children: ReactNode }) {
         <Sider width={250}>
           <div className="px-4 pb-3 pt-4">
             <div className="rounded-xl border border-cyan-200/60 bg-cyan-500 px-3 py-3 text-cyan-50 shadow-sm">
-              <p className="mb-1 text-base font-semibold">用户中心</p>
-              <p className="text-sm text-cyan-100">管理个人资料、互动记录和账号安全</p>
+              <p className="mb-1 text-base font-semibold">{dict.userDashboard.title}</p>
+              <p className="text-sm text-cyan-100">{dict.userDashboard.subtitle}</p>
             </div>
           </div>
           <Menu
             mode="inline"
             selectedKeys={[selectedKey]}
-            items={items}
+            items={getItems(dict)}
           />
         </Sider>
 
         <Layout>
           <Header>
             <div className="flex items-center justify-between">
-              <span className="text-slate-700">用户仪表盘</span>
+              <span className="text-slate-700">{dict.userDashboard.dashboard}</span>
               <Space>
                 <Space>
                   <Avatar icon={<UserOutlined />} src={data?.user?.image ?? undefined} />
                   <div className="leading-tight">
-                    <p className="m-0 text-sm font-semibold text-slate-800">{data?.user?.name ?? "User"}</p>
+                    <p className="m-0 text-sm font-semibold text-slate-800">{data?.user?.name ?? dict.common.anonymous}</p>
                     <p className="m-0 text-xs text-slate-500">{data?.user?.email ?? "-"}</p>
                   </div>
                 </Space>
                 <Link href="/">
-                  <Button type="default">返回首页</Button>
+                  <Button type="default">{dict.userDashboard.backHome}</Button>
                 </Link>
                 <Button
                   danger
@@ -140,7 +142,7 @@ export function UserShell({ children }: { children: ReactNode }) {
                   loading={isSigningOut}
                   onClick={handleSignOut}
                 >
-                  退出登录
+                  {dict.userDashboard.logout}
                 </Button>
               </Space>
             </div>

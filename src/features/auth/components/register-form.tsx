@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 type CaptchaPayload = {
   captchaId: string;
@@ -27,6 +28,7 @@ export function RegisterForm() {
   const [needVerify, setNeedVerify] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const dict = useDictionary();
 
   const loadCaptcha = async () => {
     const response = await fetch("/api/auth/captcha", { cache: "no-store" });
@@ -43,15 +45,15 @@ export function RegisterForm() {
     if (!captcha?.captchaId) return;
 
     if (!email.trim() || !password || !confirmPassword || !captchaAnswer.trim()) {
-      setErrorMessage("请填写完整信息。");
+      setErrorMessage(dict.auth.registerFormErrorEmpty);
       return;
     }
     if (password.length < 8) {
-      setErrorMessage("密码至少 8 位。");
+      setErrorMessage(dict.auth.passwordTooShort);
       return;
     }
     if (password !== confirmPassword) {
-      setErrorMessage("两次密码不一致。");
+      setErrorMessage(dict.auth.passwordMismatch);
       return;
     }
 
@@ -137,8 +139,8 @@ export function RegisterForm() {
   return (
     <div className="auth-card w-full max-w-md space-y-4 rounded-2xl p-6 text-white">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">注册晚风博客</h1>
-        <p className="text-sm text-slate-200/85">创建账号后即可评论、留言与管理个人信息。</p>
+        <h1 className="text-2xl font-semibold">{dict.auth.registerTitle}</h1>
+        <p className="text-sm text-slate-200/85">{dict.auth.registerSubtitle}</p>
       </div>
 
       {!needVerify ? (
@@ -146,13 +148,13 @@ export function RegisterForm() {
           <Input
             className="border-sky-200/30 bg-white/90 text-zinc-900"
             onChange={(event) => setName(event.target.value)}
-            placeholder="昵称（可选）"
+            placeholder={dict.auth.nickname}
             value={name}
           />
           <Input
             className="border-sky-200/30 bg-white/90 text-zinc-900"
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="邮箱"
+            placeholder={dict.auth.email}
             type="email"
             value={email}
           />
@@ -160,7 +162,7 @@ export function RegisterForm() {
             <Input
               className="border-sky-200/30 bg-white/90 pr-10 text-zinc-900"
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="密码（至少 8 位）"
+              placeholder={dict.auth.passwordMin8}
               type={showPassword ? "text" : "password"}
               value={password}
             />
@@ -181,7 +183,7 @@ export function RegisterForm() {
             <Input
               className="border-sky-200/30 bg-white/90 pr-10 text-zinc-900"
               onChange={(event) => setConfirmPassword(event.target.value)}
-              placeholder="确认密码"
+              placeholder={dict.auth.confirmPassword}
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
             />
@@ -209,39 +211,39 @@ export function RegisterForm() {
               <Input
                 className="border-sky-200/30 bg-white/90 text-zinc-900"
                 onChange={(event) => setCaptchaAnswer(event.target.value)}
-                placeholder="验证码"
+                placeholder={dict.auth.captcha}
                 value={captchaAnswer}
               />
             </div>
-            <p className="text-xs text-slate-200/80">看不清可点击图片刷新</p>
+            <p className="text-xs text-slate-200/80">{dict.auth.captchaHint2}</p>
           </div>
 
           {errorMessage ? <p className="text-sm text-rose-300">{errorMessage}</p> : null}
           <Button className="w-full" loading={isLoading} onClick={submitRegister} type="button">
-            注册并发送验证码
+            {dict.auth.registerSubmit}
           </Button>
         </>
       ) : (
         <>
           <p className="text-sm text-slate-100/90">
-            验证码已发送至 <span className="font-medium">{email}</span>，请输入邮件中的验证码。
+            {dict.auth.verifyCodeSent} <span className="font-medium">{email}</span>，请输入邮件中的验证码。
           </p>
           <Input
             className="border-sky-200/30 bg-white/90 text-zinc-900"
             onChange={(event) => setVerifyCode(event.target.value)}
-            placeholder="邮箱验证码"
+            placeholder={dict.auth.emailVerifyCode}
             value={verifyCode}
           />
           <Button className="w-full" loading={isLoading} onClick={submitVerify} type="button">
-            激活并登录
+            {dict.auth.verifySubmit}
           </Button>
         </>
       )}
 
       <p className="text-center text-sm text-slate-100/90">
-        已有账号？
+        {dict.auth.hasAccount}
         <Link className="ml-1 hover:underline" href="/login">
-          去登录
+          {dict.auth.toLogin}
         </Link>
       </p>
     </div>

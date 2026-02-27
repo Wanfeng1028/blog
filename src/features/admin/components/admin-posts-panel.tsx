@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button, Card, Form, Input, Pagination, Select, Space, Table, Tag, Typography } from "antd";
 import type { PostStatus } from "@prisma/client";
 import { PostActions } from "@/features/admin/components/post-actions";
+import { useDictionary } from "@/features/i18n/lang-context";
 
 type PostItem = {
   id: string;
@@ -33,6 +34,7 @@ type AdminPostsPanelProps = {
 
 export function AdminPostsPanel(props: AdminPostsPanelProps) {
   const router = useRouter();
+  const dict = useDictionary();
   const [form] = Form.useForm();
 
   const onFinish = (values: { query?: string; status?: PostStatus; tag?: string }) => {
@@ -48,10 +50,10 @@ export function AdminPostsPanel(props: AdminPostsPanelProps) {
     <Space orientation="vertical" size={16} className="w-full">
       <div className="flex items-center justify-between">
         <Typography.Title level={3} className="!mb-0">
-          文章管理
+          {dict.admin.postManage}
         </Typography.Title>
         <Link href="/admin/posts/new">
-          <Button type="primary">新建文章</Button>
+          <Button type="primary">{dict.admin.newPost}</Button>
         </Link>
       </div>
 
@@ -63,17 +65,17 @@ export function AdminPostsPanel(props: AdminPostsPanelProps) {
           onFinish={onFinish}
         >
           <Form.Item name="query">
-            <Input allowClear placeholder="搜索标题或摘要" style={{ width: 240 }} />
+            <Input allowClear placeholder={dict.admin.searchTitleOrSummary} style={{ width: 240 }} />
           </Form.Item>
           <Form.Item name="status">
             <Select
               allowClear
-              placeholder="状态"
+              placeholder={dict.admin.status}
               style={{ width: 150 }}
               options={[
-                { value: "DRAFT", label: "草稿" },
-                { value: "PUBLISHED", label: "已发布" },
-                { value: "ARCHIVED", label: "归档" }
+                { value: "DRAFT", label: dict.admin.draft },
+                { value: "PUBLISHED", label: dict.admin.published },
+                { value: "ARCHIVED", label: dict.admin.archived }
               ]}
             />
           </Form.Item>
@@ -81,14 +83,14 @@ export function AdminPostsPanel(props: AdminPostsPanelProps) {
             <Select
               allowClear
               showSearch
-              placeholder="标签"
+              placeholder={dict.admin.tags}
               style={{ width: 180 }}
               options={props.tags.map((item) => ({ value: item.slug, label: item.name }))}
             />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              筛选
+              {dict.admin.filter}
             </Button>
           </Form.Item>
         </Form>
@@ -101,7 +103,7 @@ export function AdminPostsPanel(props: AdminPostsPanelProps) {
           dataSource={props.posts}
           columns={[
             {
-              title: "标题",
+              title: dict.admin.title,
               key: "title",
               render: (_, row) => (
                 <div>
@@ -111,7 +113,7 @@ export function AdminPostsPanel(props: AdminPostsPanelProps) {
               )
             },
             {
-              title: "状态",
+              title: dict.admin.status,
               dataIndex: "status",
               key: "status",
               render: (value: PostStatus) => {
@@ -120,7 +122,7 @@ export function AdminPostsPanel(props: AdminPostsPanelProps) {
               }
             },
             {
-              title: "标签",
+              title: dict.admin.tags,
               dataIndex: "tags",
               key: "tags",
               render: (tags: string[]) => (
@@ -133,13 +135,13 @@ export function AdminPostsPanel(props: AdminPostsPanelProps) {
               )
             },
             {
-              title: "更新时间",
+              title: dict.admin.updatedAt,
               dataIndex: "updatedAt",
               key: "updatedAt",
               render: (value: string) => new Date(value).toLocaleString()
             },
             {
-              title: "操作",
+              title: dict.admin.actions,
               key: "actions",
               render: (_, row) => <PostActions id={row.id} status={row.status} />
             }
